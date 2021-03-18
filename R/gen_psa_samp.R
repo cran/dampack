@@ -1,0 +1,470 @@
+#' Generate PSA Sample
+#'
+#' @description \code{gen_psa_samp} generates a data.frame of sampled parameter values from
+#' user-specified distributions
+#' to be used in a probabilistic sensitivity analysis (PSA)
+
+#' @details
+#' Length of vectors \code{params}, \code{dists}, \code{parameterization_types}, and list \code{dists_params} must all
+#' be the same.
+#' The nth element of \code{dists}, \code{parameterization_types}, and \code{dists_params}
+#' all define the distribution that will be
+#' used to draw samples of the corresponding nth element of the \code{params} vector.
+#'
+#' For a given element of \code{params}:
+#' \itemize{
+#' \item If \code{dists == "normal"}, \code{parameterization_types} can only be \code{"mean, sd"},
+#' and the corresponding element of list \code{dists_params} must be the the vector \code{c(mean, sd)}
+#'
+#' \item If \code{dists == "log-normal"}, \code{parameterization_types} can be either \code{"mean, sd"} or
+#' \code{"meanlog, sdlog"}, and the corresponding element of list \code{dists_params} must be either
+#' the the vector \code{c(mean, sd)} or \code{c(meanlog, sdlog)}. Use \code{"mean, sd"} if you have
+#' sample mean and sample standard deviation of an empirical sample of the random variable, and use
+#' \code{"meanlog, sdlog"} if you want to directly specify the parameters of the log-normal distribution
+#' as specified by \code{\link{rlnorm}}
+#'
+#' \item If \code{dists == "truncated-normal"}, \code{parameterization_types} can only be \code{"mean, sd, ll, ul"},
+#' and \code{dists_params} must be the vector \code{c(mean, sd, ll, ul)}, where \code{ll} is
+#' the lower limit of the distribution and \code{ul}
+#' is the upper limit of the distribution. If either the lower limit or the upper
+#' limit does not exist, simply specify \code{NA} in
+#' the corresponding position of the dists_params vector.
+#'
+#' \item If \code{dists == "beta"}, \code{parameterization_types} can be \code{"mean, sd"} or \code{"a, b"}
+#' and the corresponding element of list \code{dists_params} must be the the vector \code{c(mean, sd)}
+#' or \code{c(a, b)}, respectively.
+#'
+#' \item If \code{dists == "gamma"}, \code{parameterization_types} can be \code{"mean, sd"} or \code{"shape, scale"}
+#' and the corresponding element of list \code{dists_params} must be the the vector \code{c(mean, sd)}
+#' or \code{c(shape, scale)}, respectively.
+#'
+#' \item If \code{dists == "dirichlet"}, \code{parameterization_types} can be \code{"value, mean_prop, sd"},
+#' \code{"value, n"}, or \code{"value, alpha"}.
+#' \itemize{
+#' \item If \code{parameterization_types == "value, mean_prop, sd"},
+#' then the corresponding element of list \code{dists_params} must be a data.frame where the first column
+#' is a string vector of the the different multinomial outcomes. These multinomial outcomes will become column names
+#' in the data.frame returned by \code{gen_psa_samp}, and therefore the strings in this column should correspond to
+#' variable names used in \code{FUN} for \code{\link{run_psa}}. The second and
+#' third columns of this \code{dists_params}
+#' should be numerical vectors containing the sample means and sample standard errors for
+#' each of the multinomial outcomes.
+#'
+#' \item If \code{parameterization_types == "value, n"}, then \code{dists_params} must be a
+#' data.frame with the first column
+#' being a string vector of the multinomial outcomes, and the second column being a
+#' vector of the observed number of each
+#' multinomial outcome in a sample.
+#'
+#' \item If \code{parameterization_types == "value, alpha"}, then \code{dists_params} must be a data.frame with
+#' the first column being a string vector of the multinomial outcomes, and
+#'  the second column must be a numerical vector
+#' of the alpha parameter values for each multinomial outcome in the dirichlet distribution.
+#' }
+#'
+#' \item If \code{dists == "bootstrap"}, \code{parameterization_types} can only be
+#'  \code{"value, weight"}, and \code{dists_params}
+#' must be a data.frame with the first column being a numerical vector
+#' containing all of the bootstrap sample values, and
+#' the second column being an integer vector designating the
+#' sampling weights of each bootstrap sample value.  For example,
+#' the number of rows in the \code{dists_params} data.frame
+#' is the number of individuals in the population to be sampled
+#' from (with replacement) or the number of values an
+#' empirical distribution (e.g. a histogram). If each individual value in the
+#' sample is unique and should be weighted equally,
+#' set each weight to 1. If the sample distribution resembles a histogram,
+#' the weights should be equal to the number of
+#' observations for each unique value in the empirical distribution.
+#'
+#' \item If \code{dists == "constant"}, \code{parameterization_types} can only be \code{"val"},
+#' and \code{dists_params} must be a single numerical value.
+#' }
+#'
+#' @param params string vector with the names of parameters to be generated by \code{gen_psa_samp}
+#' and used by a user-defined function in \code{run_psa} to calculate outcomes.
+#' @param dists string vector with the distributions from which \code{params} will be drawn.
+#' @param parameterization_types string vector with parameterization types for each \code{dists}
+#' @param dists_params list of input parameters required to
+#'  by specific \code{dists} and \code{parameterization_types}
+#' to fully describe distribution and generate parameter samples.
+#' @param nsamp number of sets of parameter values to be generated
+#'
+#' @return
+#' A dataframe with samples of parameters for a probabilistic sensitivity analysis (PSA)
+#'
+#' @seealso
+#' \code{\link{run_psa}}
+#'
+#' @examples
+#' #define parameter names
+#' params <- c("normal_param", "lognorm_param", "truncnorm_param", "beta_param",
+#'             "gamma_param", "dirichlet_param", "bootstrap_param")
+#'
+#' #indicate parent distribution types for each parameter
+#' dists <- c("normal", "log-normal", "truncated-normal", "beta", "gamma", "dirichlet", "bootstrap")
+#'
+#' #indicate which type of parameterization is used for each parent distribution
+#' parameterization_types <- c("mean, sd", "mean, sd", "mean, sd, ll, ul", "mean, sd", "mean, sd",
+#'                           "value, mean_prop, sd", "value, weight")
+#'
+#' #provide distribution parameters that fully define each parent distribution, and
+#' #ensure that these distribution parameters match the form expected by each combination of dists
+#' #and parameterization_types
+#' dists_params <- list(c(1, 2), c(1, 3), c(1, 0.1, NA, 1), c(.5, .2), c(100, 1),
+#'                    data.frame(value = c("level1", "level2", "level3"),
+#'                               mean_prop = c(.1, .4, .5), sd = c(.05, .01, .1)),
+#'                    data.frame(value = c(1, 2, 4, 6, 7, 8),
+#'                               weight = c(1, 1, 1, 1, 1, 4)))
+#'
+#' #generate 100 samples of parameter values to be used in a probabilistic sensitivity analysis
+#' gen_psa_samp(params = params,
+#'              dists = dists,
+#'              parameterization_types = parameterization_types,
+#'              dists_params = dists_params,
+#'              nsamp = 100)
+#'
+#' @importFrom stats rbeta rgamma rlnorm rnorm
+#' @importFrom truncnorm rtruncnorm
+#' @importFrom triangle rtriangle
+#' @export
+gen_psa_samp <- function(params = NULL,
+                         dists = c("normal", "log-normal", "truncated-normal", "beta", "gamma",
+                                  "dirichlet", "bootstrap", "constant", "triangle"),
+                         parameterization_types = c("mean, sd", "a, b", "shape, scale",
+                                                   "value, mean_prop, sd", "value, n",
+                                                   "value, alpha", "mean, sd, ll, ul", "val",
+                                                   "meanlog, sdlog", "ll, ul, mode"),
+                         dists_params = NULL,
+                         nsamp = 100) {
+
+  dists <- match.arg(dists, several.ok = TRUE)
+  parameterization_types <- match.arg(parameterization_types, several.ok = TRUE)
+
+  n_params <- length(params)
+  params_df <- vector(mode = "list", length = n_params)
+
+  for (i in 1:n_params) {
+    #normal
+    if (dists[i] == "normal") {
+      params_df[[i]] <- data.frame(param_val = rnorm(nsamp, mean = dists_params[[i]][1],
+                                                     sd = dists_params[[i]][2]))
+      names(params_df[[i]]) <- paste0(params[i])
+    }
+
+    #log normal
+    if (dists[i] == "log-normal") {
+      if (parameterization_types[i] == "mean, sd") {
+        mu <- lnorm_params(dists_params[[i]][1], (dists_params[[i]][2]) ^ 2)[[1]]
+        sd <- lnorm_params(dists_params[[i]][1], (dists_params[[i]][2]) ^ 2)[[2]]
+      } else if (parameterization_types[i] == "meanlog, sdlog") {
+        mu <- dists_params[[i]][1]
+        sd <- dists_params[[i]][2]
+      }
+
+      params_df[[i]] <- data.frame(param_val = rlnorm(nsamp, meanlog = mu, sdlog = sd))
+      names(params_df[[i]]) <- paste0(params[i])
+    }
+
+    #truncated normal
+    if (dists[i] == "truncated-normal") {
+      sample_mean <- dists_params[[i]][1]
+      sample_sd <- dists_params[[i]][2]
+      lowerbound <- ifelse(!is.na(dists_params[[i]][3]), dists_params[[i]][3], -Inf)
+      upperbound <- ifelse(!is.na(dists_params[[i]][4]), dists_params[[i]][4], Inf)
+      params_df[[i]] <- data.frame(param_val = rtruncnorm(nsamp, a = lowerbound,
+                                                          b = upperbound, mean = sample_mean,
+                                                          sd = sample_sd))
+      names(params_df[[i]]) <- paste0(params[i])
+    }
+    #beta
+    if (dists[i] == "beta") {
+      if (parameterization_types[i] == "mean, sd") {
+        a <- beta_params(dists_params[[i]][1], dists_params[[i]][2])[[1]]
+        b <- beta_params(dists_params[[i]][1], dists_params[[i]][2])[[2]]
+        params_df[[i]] <- as.data.frame(rbeta(nsamp, a, b))
+      } else if (parameterization_types[i] == "a, b") {
+        a <- dists_params[[i]][1]
+        b <- dists_params[[i]][2]
+        params_df[[i]] <- as.data.frame(rbeta(nsamp, a, b))
+      }
+      names(params_df[[i]]) <- paste0(params[i])
+    }
+
+    #gamma
+    if (dists[i] == "gamma") {
+      if (parameterization_types[i] == "mean, sd") {
+        shape <- gamma_params(dists_params[[i]][1], dists_params[[i]][2], scale = TRUE)[[1]]
+        scale <- gamma_params(dists_params[[i]][1], dists_params[[i]][2], scale = TRUE)[[2]]
+        params_df[[i]] <- as.data.frame(rgamma(nsamp, shape = shape, scale = scale))
+      } else if (parameterization_types[i] == "shape, scale") {
+        shape <- dists_params[[i]][1]
+        scale <- dists_params[[i]][2]
+        params_df[[i]] <- as.data.frame(rgamma(nsamp, shape = shape, scale = scale))
+      }
+      names(params_df[[i]]) <- paste0(params[i])
+    }
+
+    #dirichlet
+    if (dists[i] == "dirichlet") {
+      if (parameterization_types[i] == "value, mean_prop, sd") {
+        alpha <- dirichlet_params(dists_params[[i]][, 2], dists_params[[i]][, 3])
+        params_df[[i]] <- as.data.frame(rdirichlet(nsamp, alpha))
+      } else if (parameterization_types[i] == "value, n") {
+        val_n <- as.data.frame(dists_params[[i]])
+        total <- sum(val_n[, 2])
+        p_mean <- val_n[, 2] / total
+        sd <- sqrt((p_mean * (1 - p_mean)) / total)
+        alpha <- dirichlet_params(p_mean, sd)
+        params_df[[i]] <- as.data.frame(rdirichlet(nsamp, alpha))
+        } else if (parameterization_types[i] == "value, alpha") {
+        alpha <- dists_params[[i]][, 2]
+        params_df[[i]] <- as.data.frame(rdirichlet(nsamp, alpha))
+      }
+      names(params_df[[i]]) <- paste0(dists_params[[i]][, 1])
+    }
+
+    #bootstrap
+    if (dists[i] == "bootstrap") {
+      samp_vec <- vector(mode = "numeric", length = nsamp)
+      for (k in 1:nsamp) {
+        samp_vec[k] <- mean(sample(x = dists_params[[i]][, 1],
+                                   size = sum(dists_params[[i]][, 2]),
+                                   replace = TRUE,
+                                   prob = dists_params[[i]][, 2]))
+      }
+      params_df[[i]] <- as.data.frame(samp_vec)
+      names(params_df[[i]]) <- paste0(params[i])
+    }
+
+    #triangle
+    if (dists[i] == "triangle") {
+      if (parameterization_types[i] == "ll, ul, mode") {
+        a <- dists_params[[i]][1]
+        b <- dists_params[[i]][2]
+        c <- dists_params[[i]][3]
+        params_df[[i]] <- as.data.frame(rtriangle(n = nsamp, a = a, b = b, c = c))
+      }
+      names(params_df[[i]]) <- paste0(params[i])
+    }
+
+    #constant
+    if (dists[i] == "constant") {
+      val <- dists_params[[i]]
+      params_df[[i]] <- data.frame(param_val = rep(val, nsamp))
+      names(params_df[[i]]) <- paste0(params[i])
+    }
+
+  }
+
+  params_df <- do.call(cbind, params_df)
+  nsamp <- 1:nsamp
+  params_df <- cbind(nsamp, params_df)
+  return(params_df)
+}
+
+
+#' Random number generation for the Dirichlet distribution with parameter vector alpha.
+#'
+#' @param n number of observations
+#' @param alpha vector of parameters defining Dirichlet distribution
+#'
+#'
+#'  @importFrom stats rgamma
+#'  @return A vector random values sampled from a dirichlet distribution
+#'  @export
+rdirichlet <- function(n, alpha) {
+    k <- length(alpha)
+    out <- matrix(rgamma(n * k, shape = alpha), n, k, byrow = TRUE)
+    out <- out / rowSums(out)
+    return(out)
+}
+
+
+
+
+
+#' Calculate alpha and beta parameters of beta distribution.
+#'
+#' Function to calculate the alpha and beta parameters of the beta distribution
+#' based on the method of moments using the mean \eqn{\mu} and standard
+#' deviation \eqn{\sigma} of the random variable of interest.
+#' @param mean mean of the random variable.
+#' @param sigma standard deviation of the random variable (i.e., standard error).
+#' @keywords beta distribution; methods of moments
+#' @section Details:
+#' Based on methods of moments. If \eqn{\mu} is the mean and
+#' \eqn{\sigma} is the standard deviation of the random variable, then
+#' \deqn{\alpha = (\frac{1-\mu}{\sigma^2} - \frac{1}{\mu}) \mu^2}
+#' and
+#' \deqn{\beta = \alpha (\frac{1}{\mu} -1)}
+#'
+#' @return a list containing the following:
+#' @return alpha The method-of-moments estimate for the alpha parameter of the beta distribution
+#' @return beta The method-of-moments estimate for the beta parameter of the beta distribution
+#' @export
+beta_params <- function(mean, sigma) {
+  alpha <- ((1 - mean) / sigma ^ 2 - 1 / mean) * mean ^ 2
+  beta  <- alpha * (1 / mean - 1)
+  params <- list(alpha = alpha, beta = beta)
+  return(params)
+}
+
+
+
+
+#' Calculate alpha parameters of Dirichlet distribution.
+#'
+#' Function to calculate the \eqn{\alpha} parameters of the Dirichlet distribution
+#' based on the method of moments (MoM) using the mean \eqn{\mu} and standard
+#' deviation \eqn{\sigma} of the random variables of interest.
+#' @param p.mean Vector of means of the random variables.
+#' @param sigma Vector of standard deviation of the random variables
+#' (i.e., standard error).
+#' @keywords dirichlet distribution; method of moments
+#' @section Details:
+#' Based on methods of moments. If \eqn{\mu} is a vector of means and
+#' \eqn{\sigma} is a vector of standard deviations of the random variables, then
+#' the second moment \eqn{X_2} is defined by \eqn{\sigma^2 + \mu^2}. Using the
+#' mean and the second moment, the \eqn{J} alpha parameters are computed as follows
+#' \deqn{\alpha_i = \frac{(\mu_1-X_{2_{1}})\mu_i}{X_{2_{1}}-\mu_1^2}}
+#' for \eqn{i = 1, \ldots, J-1}, and
+#' \deqn{\alpha_J = \frac{(\mu_1-X_{2_{1}})(1-\sum_{i=1}^{J-1}{\mu_i})}{X_{2_{1}}-\mu_1^2}}
+#'
+#' @references
+#' \enumerate{
+#' \item Fielitz BD, Myers BL. Estimation of parameters in the beta distribution.
+#' Dec Sci. 1975;6(1):1–13.
+#' \item Narayanan A. A note on parameter estimation in the multivariate beta
+#' distribution. Comput Math with Appl. 1992;24(10):11–7.
+#' }
+#' @return numeric vector of method-of-moment estimates for the alpha parameters of the
+#'  dirichlet distribution
+#' @examples
+#' p.mean <- c(0.5, 0.15, 0.35)
+#' p.se   <- c(0.035, 0.025, 0.034)
+#' dirichlet_params(p.mean, p.se)
+#' @export
+dirichlet_params <- function(p.mean, sigma) {
+  n.params <- length(p.mean)
+  if (n.params != length(sigma)) {
+    stop("Length of mean different from length of sigma")
+  }
+
+  # Compute second moment
+  p.2 <- sigma ^ 2 + p.mean ^ 2
+  # Initialize alpha vector
+  alpha <- numeric(n.params)
+  for (i in 1:(n.params - 1)) {
+    alpha[i] <- (p.mean[1] - p.2[1]) * p.mean[i] / (p.2[1] - p.mean[1] ^ 2)
+  }
+  alpha[n.params] <- (p.mean[1] - p.2[1]) * (1 - sum(p.mean[- n.params])) / (p.2[1] - p.mean[1] ^ 2)
+  return(alpha)
+}
+
+
+
+#' Calculate shape and scale (or rate) parameters of a gamma distribution.
+#'
+#' Function to calculate the shape, \eqn{\alpha}, and scale, \eqn{\theta}, (or rate, \eqn{\beta})
+#' parameters of a gamma distribution based on the method of moments (MoM)
+#' using the mean \eqn{\mu} and standard deviation \eqn{\sigma} of the random
+#' variable of interest.
+#' @param mu scalar with the mean of the random variable.
+#' @param sigma scalar with the standard deviation of the random variable.
+#' @param scale logical variable indicating scale parameterization of the gamma distribution
+#' (Default is TRUE). If FALSE, rate parameterization is retrieved
+#' @keywords gamma distribution; method of moments
+#' @section Details:
+#' Based on method of moments. If \eqn{\mu} is the mean and
+#' \eqn{\sigma} is the standard deviation of the random variable, then the
+#' the shape, \eqn{\alpha}, scale, \eqn{\theta}, and rate, \eqn{\beta}, parameters are computed
+#' as follows
+#' \deqn{\alpha=\frac{\mu^2}{\sigma^2},}
+#' \deqn{\theta = \frac{\sigma^2}{\mu}}
+#' and
+#' \deqn{\beta = \frac{\mu}{\sigma^2}}
+#'
+#' @references
+#' \itemize{
+#' \item Gamma distribution. (2018, February 7). In Wikipedia, The Free
+#' Encyclopedia. Retrieved 17:23, February 11, 2018,
+#' from https://en.wikipedia.org/w/index.php?title=Gamma_distribution&oldid=824541785
+#' }
+#' @return A list contianing the following:
+#' @return shape Shape parameter of gamma distribution
+#' @return scale Scale parameter of gamma distribution (If scale=TRUE)
+#' @return rate Rate parameter of gamma distribution (If scale=FALSE)
+#' @examples
+#' mu    <- 2
+#' sigma <- 1
+#' # Scale specification
+#' gamma_params(mu, sigma)
+#' # Rate specification
+#' gamma_params(mu, sigma, scale = FALSE)
+#' @export
+gamma_params <- function(mu, sigma, scale = TRUE) {
+  if (scale) {
+    shape <- (mu ^ 2) / (sigma ^ 2)
+    scale <- (sigma ^ 2) / mu
+    params <- list(shape = shape,
+                   scale = scale)
+  } else {
+    shape <- (mu ^ 2) / (sigma ^ 2)
+    rate  <- mu / (sigma ^ 2)
+    params <- list(shape = shape,
+                   rate  = rate)
+  }
+  return(params)
+}
+
+
+#' Calculate location and scale parameters of a log-normal distribution.
+#'
+#' Function to calculate the location, \eqn{\mu}, and scale, \eqn{\sigma},
+#' parameteres of a log-normal distribution based on the method of moments (MoM)
+#' using the mean \eqn{m} and variance \eqn{v} of the non-logarithmized random
+#' variable of interest.
+#' @param m Scalar with the mean of the random variable.
+#' @param v Scalar with the variance of the random variable.
+#' (i.e., squared standar error).
+#' @keywords log-normal distribution; method of moments
+#' @section Details:
+#' Based on method of moments. If \eqn{m} is the mean and
+#' \eqn{v} is the variance of the random variable, then the
+#' the location, \eqn{\mu}, and scale, \eqn{\sigma}, parameteres are computed
+#' as follows
+#' \deqn{\mu = \ln{(\frac{m}{\sqrt{(1 + \frac{v}{m^2})}})}}
+#' and
+#' \deqn{\sigma = \sqrt{\ln{( 1 + \frac{v}{m^2})}}}
+#'
+#' @references
+#' \enumerate{
+#' \item Ginos BF. Parameter Estimation for the Lognormal Distribution.
+#' Brigham Young University; 2009.
+#' \item Log-normal distribution. (2017, April 20). In Wikipedia, The Free
+#' Encyclopedia. Retrieved 16:47, April 23, 2017,
+#' from https://en.wikipedia.org/w/index.php?title=Log-normal_distribution&oldid=776357974
+#' }
+#' @return A list containing the following:
+#' @return mu Location parameter of log-normal distribution
+#' @return sigma Scale parameter of log-normal distribution
+#' @examples
+#' m <- 3
+#' v <- 0.01
+#' lnorm_params(m, v)
+#' # True values: 100, 30, 70
+#' @export
+lnorm_params <- function(m = 1, v = 1) {
+  ### Sanity checkd
+  if (m <= 0) {
+    stop("'m' needs to be greater than 0")
+    }
+  if (v <= 0) {
+    stop("'v' needs to be greater than 0")
+    }
+  mu <- log(m / sqrt(1 + v / m ^ 2))
+  sigma <- sqrt(log(1 + v / m ^ 2))
+  return(list(mu = mu,
+              sigma = sigma))
+}
