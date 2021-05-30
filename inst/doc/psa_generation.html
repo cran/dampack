@@ -12,26 +12,11 @@
 
 <meta name="author" content="Fernando Alarid-Escudero, Greg Knowlton, Eva Enns, and the DARTH Team" />
 
-<meta name="date" content="2021-03-16" />
+<meta name="date" content="2021-05-30" />
 
 <title>Probabilistic Sensitivity Analysis: Generation</title>
 
-<script>// Hide empty <a> tag within highlighted CodeBlock for screen reader accessibility (see https://github.com/jgm/pandoc/issues/6352#issuecomment-626106786) -->
-// v0.0.1
-// Written by JooYoung Seo (jooyoung@psu.edu) and Atsushi Yasumoto on June 1st, 2020.
-
-document.addEventListener('DOMContentLoaded', function() {
-  const codeList = document.getElementsByClassName("sourceCode");
-  for (var i = 0; i < codeList.length; i++) {
-    var linkList = codeList[i].getElementsByTagName('a');
-    for (var j = 0; j < linkList.length; j++) {
-      if (linkList[j].innerHTML === "") {
-        linkList[j].setAttribute('aria-hidden', 'true');
-      }
-    }
-  }
-});
-</script>
+<script src="data:application/javascript;base64,Ly8gUGFuZG9jIDIuOSBhZGRzIGF0dHJpYnV0ZXMgb24gYm90aCBoZWFkZXIgYW5kIGRpdi4gV2UgcmVtb3ZlIHRoZSBmb3JtZXIgKHRvCi8vIGJlIGNvbXBhdGlibGUgd2l0aCB0aGUgYmVoYXZpb3Igb2YgUGFuZG9jIDwgMi44KS4KZG9jdW1lbnQuYWRkRXZlbnRMaXN0ZW5lcignRE9NQ29udGVudExvYWRlZCcsIGZ1bmN0aW9uKGUpIHsKICB2YXIgaHMgPSBkb2N1bWVudC5xdWVyeVNlbGVjdG9yQWxsKCJkaXYuc2VjdGlvbltjbGFzcyo9J2xldmVsJ10gPiA6Zmlyc3QtY2hpbGQiKTsKICB2YXIgaSwgaCwgYTsKICBmb3IgKGkgPSAwOyBpIDwgaHMubGVuZ3RoOyBpKyspIHsKICAgIGggPSBoc1tpXTsKICAgIGlmICghL15oWzEtNl0kL2kudGVzdChoLnRhZ05hbWUpKSBjb250aW51ZTsgIC8vIGl0IHNob3VsZCBiZSBhIGhlYWRlciBoMS1oNgogICAgYSA9IGguYXR0cmlidXRlczsKICAgIHdoaWxlIChhLmxlbmd0aCA+IDApIGgucmVtb3ZlQXR0cmlidXRlKGFbMF0ubmFtZSk7CiAgfQp9KTsK"></script>
 
 <style type="text/css">
   code{white-space: pre-wrap;}
@@ -52,19 +37,19 @@ document.addEventListener('DOMContentLoaded', function() {
   }
 </style>
 <style type="text/css" data-origin="pandoc">
-code.sourceCode > span { display: inline-block; line-height: 1.25; }
-code.sourceCode > span { color: inherit; text-decoration: inherit; }
-code.sourceCode > span:empty { height: 1.2em; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
 .sourceCode { overflow: visible; }
-code.sourceCode { white-space: pre; position: relative; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
 div.sourceCode { margin: 1em 0; }
 pre.sourceCode { margin: 0; }
 @media screen {
 div.sourceCode { overflow: auto; }
 }
 @media print {
-code.sourceCode { white-space: pre-wrap; }
-code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
 }
 pre.numberSource code
   { counter-reset: source-line 0; }
@@ -84,7 +69,7 @@ pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-le
 div.sourceCode
   {   }
 @media screen {
-code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
 }
 code span.al { color: #ff0000; font-weight: bold; } /* Alert */
 code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
@@ -142,187 +127,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 
 
 
-<style type="text/css">body {
-background-color: #fff;
-margin: 1em auto;
-max-width: 700px;
-overflow: visible;
-padding-left: 2em;
-padding-right: 2em;
-font-family: "Open Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
-font-size: 14px;
-line-height: 1.35;
-}
-#TOC {
-clear: both;
-margin: 0 0 10px 10px;
-padding: 4px;
-width: 400px;
-border: 1px solid #CCCCCC;
-border-radius: 5px;
-background-color: #f6f6f6;
-font-size: 13px;
-line-height: 1.3;
-}
-#TOC .toctitle {
-font-weight: bold;
-font-size: 15px;
-margin-left: 5px;
-}
-#TOC ul {
-padding-left: 40px;
-margin-left: -1.5em;
-margin-top: 5px;
-margin-bottom: 5px;
-}
-#TOC ul ul {
-margin-left: -2em;
-}
-#TOC li {
-line-height: 16px;
-}
-table {
-margin: 1em auto;
-border-width: 1px;
-border-color: #DDDDDD;
-border-style: outset;
-border-collapse: collapse;
-}
-table th {
-border-width: 2px;
-padding: 5px;
-border-style: inset;
-}
-table td {
-border-width: 1px;
-border-style: inset;
-line-height: 18px;
-padding: 5px 5px;
-}
-table, table th, table td {
-border-left-style: none;
-border-right-style: none;
-}
-table thead, table tr.even {
-background-color: #f7f7f7;
-}
-p {
-margin: 0.5em 0;
-}
-blockquote {
-background-color: #f6f6f6;
-padding: 0.25em 0.75em;
-}
-hr {
-border-style: solid;
-border: none;
-border-top: 1px solid #777;
-margin: 28px 0;
-}
-dl {
-margin-left: 0;
-}
-dl dd {
-margin-bottom: 13px;
-margin-left: 13px;
-}
-dl dt {
-font-weight: bold;
-}
-ul {
-margin-top: 0;
-}
-ul li {
-list-style: circle outside;
-}
-ul ul {
-margin-bottom: 0;
-}
-pre, code {
-background-color: #f7f7f7;
-border-radius: 3px;
-color: #333;
-white-space: pre-wrap; 
-}
-pre {
-border-radius: 3px;
-margin: 5px 0px 10px 0px;
-padding: 10px;
-}
-pre:not([class]) {
-background-color: #f7f7f7;
-}
-code {
-font-family: Consolas, Monaco, 'Courier New', monospace;
-font-size: 85%;
-}
-p > code, li > code {
-padding: 2px 0px;
-}
-div.figure {
-text-align: center;
-}
-img {
-background-color: #FFFFFF;
-padding: 2px;
-border: 1px solid #DDDDDD;
-border-radius: 3px;
-border: 1px solid #CCCCCC;
-margin: 0 5px;
-}
-h1 {
-margin-top: 0;
-font-size: 35px;
-line-height: 40px;
-}
-h2 {
-border-bottom: 4px solid #f7f7f7;
-padding-top: 10px;
-padding-bottom: 2px;
-font-size: 145%;
-}
-h3 {
-border-bottom: 2px solid #f7f7f7;
-padding-top: 10px;
-font-size: 120%;
-}
-h4 {
-border-bottom: 1px solid #f7f7f7;
-margin-left: 8px;
-font-size: 105%;
-}
-h5, h6 {
-border-bottom: 1px solid #ccc;
-font-size: 105%;
-}
-a {
-color: #0033dd;
-text-decoration: none;
-}
-a:hover {
-color: #6666ff; }
-a:visited {
-color: #800080; }
-a:visited:hover {
-color: #BB00BB; }
-a[href^="http:"] {
-text-decoration: underline; }
-a[href^="https:"] {
-text-decoration: underline; }
-
-code > span.kw { color: #555; font-weight: bold; } 
-code > span.dt { color: #902000; } 
-code > span.dv { color: #40a070; } 
-code > span.bn { color: #d14; } 
-code > span.fl { color: #d14; } 
-code > span.ch { color: #d14; } 
-code > span.st { color: #d14; } 
-code > span.co { color: #888888; font-style: italic; } 
-code > span.ot { color: #007020; } 
-code > span.al { color: #ff0000; font-weight: bold; } 
-code > span.fu { color: #900; font-weight: bold; } 
-code > span.er { color: #a61717; background-color: #e3d2d2; } 
-</style>
+<link rel="stylesheet" href="data:text/css,body%20%7B%0Abackground%2Dcolor%3A%20%23fff%3B%0Amargin%3A%201em%20auto%3B%0Amax%2Dwidth%3A%20700px%3B%0Aoverflow%3A%20visible%3B%0Apadding%2Dleft%3A%202em%3B%0Apadding%2Dright%3A%202em%3B%0Afont%2Dfamily%3A%20%22Open%20Sans%22%2C%20%22Helvetica%20Neue%22%2C%20Helvetica%2C%20Arial%2C%20sans%2Dserif%3B%0Afont%2Dsize%3A%2014px%3B%0Aline%2Dheight%3A%201%2E35%3B%0A%7D%0A%23TOC%20%7B%0Aclear%3A%20both%3B%0Amargin%3A%200%200%2010px%2010px%3B%0Apadding%3A%204px%3B%0Awidth%3A%20400px%3B%0Aborder%3A%201px%20solid%20%23CCCCCC%3B%0Aborder%2Dradius%3A%205px%3B%0Abackground%2Dcolor%3A%20%23f6f6f6%3B%0Afont%2Dsize%3A%2013px%3B%0Aline%2Dheight%3A%201%2E3%3B%0A%7D%0A%23TOC%20%2Etoctitle%20%7B%0Afont%2Dweight%3A%20bold%3B%0Afont%2Dsize%3A%2015px%3B%0Amargin%2Dleft%3A%205px%3B%0A%7D%0A%23TOC%20ul%20%7B%0Apadding%2Dleft%3A%2040px%3B%0Amargin%2Dleft%3A%20%2D1%2E5em%3B%0Amargin%2Dtop%3A%205px%3B%0Amargin%2Dbottom%3A%205px%3B%0A%7D%0A%23TOC%20ul%20ul%20%7B%0Amargin%2Dleft%3A%20%2D2em%3B%0A%7D%0A%23TOC%20li%20%7B%0Aline%2Dheight%3A%2016px%3B%0A%7D%0Atable%20%7B%0Amargin%3A%201em%20auto%3B%0Aborder%2Dwidth%3A%201px%3B%0Aborder%2Dcolor%3A%20%23DDDDDD%3B%0Aborder%2Dstyle%3A%20outset%3B%0Aborder%2Dcollapse%3A%20collapse%3B%0A%7D%0Atable%20th%20%7B%0Aborder%2Dwidth%3A%202px%3B%0Apadding%3A%205px%3B%0Aborder%2Dstyle%3A%20inset%3B%0A%7D%0Atable%20td%20%7B%0Aborder%2Dwidth%3A%201px%3B%0Aborder%2Dstyle%3A%20inset%3B%0Aline%2Dheight%3A%2018px%3B%0Apadding%3A%205px%205px%3B%0A%7D%0Atable%2C%20table%20th%2C%20table%20td%20%7B%0Aborder%2Dleft%2Dstyle%3A%20none%3B%0Aborder%2Dright%2Dstyle%3A%20none%3B%0A%7D%0Atable%20thead%2C%20table%20tr%2Eeven%20%7B%0Abackground%2Dcolor%3A%20%23f7f7f7%3B%0A%7D%0Ap%20%7B%0Amargin%3A%200%2E5em%200%3B%0A%7D%0Ablockquote%20%7B%0Abackground%2Dcolor%3A%20%23f6f6f6%3B%0Apadding%3A%200%2E25em%200%2E75em%3B%0A%7D%0Ahr%20%7B%0Aborder%2Dstyle%3A%20solid%3B%0Aborder%3A%20none%3B%0Aborder%2Dtop%3A%201px%20solid%20%23777%3B%0Amargin%3A%2028px%200%3B%0A%7D%0Adl%20%7B%0Amargin%2Dleft%3A%200%3B%0A%7D%0Adl%20dd%20%7B%0Amargin%2Dbottom%3A%2013px%3B%0Amargin%2Dleft%3A%2013px%3B%0A%7D%0Adl%20dt%20%7B%0Afont%2Dweight%3A%20bold%3B%0A%7D%0Aul%20%7B%0Amargin%2Dtop%3A%200%3B%0A%7D%0Aul%20li%20%7B%0Alist%2Dstyle%3A%20circle%20outside%3B%0A%7D%0Aul%20ul%20%7B%0Amargin%2Dbottom%3A%200%3B%0A%7D%0Apre%2C%20code%20%7B%0Abackground%2Dcolor%3A%20%23f7f7f7%3B%0Aborder%2Dradius%3A%203px%3B%0Acolor%3A%20%23333%3B%0Awhite%2Dspace%3A%20pre%2Dwrap%3B%20%0A%7D%0Apre%20%7B%0Aborder%2Dradius%3A%203px%3B%0Amargin%3A%205px%200px%2010px%200px%3B%0Apadding%3A%2010px%3B%0A%7D%0Apre%3Anot%28%5Bclass%5D%29%20%7B%0Abackground%2Dcolor%3A%20%23f7f7f7%3B%0A%7D%0Acode%20%7B%0Afont%2Dfamily%3A%20Consolas%2C%20Monaco%2C%20%27Courier%20New%27%2C%20monospace%3B%0Afont%2Dsize%3A%2085%25%3B%0A%7D%0Ap%20%3E%20code%2C%20li%20%3E%20code%20%7B%0Apadding%3A%202px%200px%3B%0A%7D%0Adiv%2Efigure%20%7B%0Atext%2Dalign%3A%20center%3B%0A%7D%0Aimg%20%7B%0Abackground%2Dcolor%3A%20%23FFFFFF%3B%0Apadding%3A%202px%3B%0Aborder%3A%201px%20solid%20%23DDDDDD%3B%0Aborder%2Dradius%3A%203px%3B%0Aborder%3A%201px%20solid%20%23CCCCCC%3B%0Amargin%3A%200%205px%3B%0A%7D%0Ah1%20%7B%0Amargin%2Dtop%3A%200%3B%0Afont%2Dsize%3A%2035px%3B%0Aline%2Dheight%3A%2040px%3B%0A%7D%0Ah2%20%7B%0Aborder%2Dbottom%3A%204px%20solid%20%23f7f7f7%3B%0Apadding%2Dtop%3A%2010px%3B%0Apadding%2Dbottom%3A%202px%3B%0Afont%2Dsize%3A%20145%25%3B%0A%7D%0Ah3%20%7B%0Aborder%2Dbottom%3A%202px%20solid%20%23f7f7f7%3B%0Apadding%2Dtop%3A%2010px%3B%0Afont%2Dsize%3A%20120%25%3B%0A%7D%0Ah4%20%7B%0Aborder%2Dbottom%3A%201px%20solid%20%23f7f7f7%3B%0Amargin%2Dleft%3A%208px%3B%0Afont%2Dsize%3A%20105%25%3B%0A%7D%0Ah5%2C%20h6%20%7B%0Aborder%2Dbottom%3A%201px%20solid%20%23ccc%3B%0Afont%2Dsize%3A%20105%25%3B%0A%7D%0Aa%20%7B%0Acolor%3A%20%230033dd%3B%0Atext%2Ddecoration%3A%20none%3B%0A%7D%0Aa%3Ahover%20%7B%0Acolor%3A%20%236666ff%3B%20%7D%0Aa%3Avisited%20%7B%0Acolor%3A%20%23800080%3B%20%7D%0Aa%3Avisited%3Ahover%20%7B%0Acolor%3A%20%23BB00BB%3B%20%7D%0Aa%5Bhref%5E%3D%22http%3A%22%5D%20%7B%0Atext%2Ddecoration%3A%20underline%3B%20%7D%0Aa%5Bhref%5E%3D%22https%3A%22%5D%20%7B%0Atext%2Ddecoration%3A%20underline%3B%20%7D%0A%0Acode%20%3E%20span%2Ekw%20%7B%20color%3A%20%23555%3B%20font%2Dweight%3A%20bold%3B%20%7D%20%0Acode%20%3E%20span%2Edt%20%7B%20color%3A%20%23902000%3B%20%7D%20%0Acode%20%3E%20span%2Edv%20%7B%20color%3A%20%2340a070%3B%20%7D%20%0Acode%20%3E%20span%2Ebn%20%7B%20color%3A%20%23d14%3B%20%7D%20%0Acode%20%3E%20span%2Efl%20%7B%20color%3A%20%23d14%3B%20%7D%20%0Acode%20%3E%20span%2Ech%20%7B%20color%3A%20%23d14%3B%20%7D%20%0Acode%20%3E%20span%2Est%20%7B%20color%3A%20%23d14%3B%20%7D%20%0Acode%20%3E%20span%2Eco%20%7B%20color%3A%20%23888888%3B%20font%2Dstyle%3A%20italic%3B%20%7D%20%0Acode%20%3E%20span%2Eot%20%7B%20color%3A%20%23007020%3B%20%7D%20%0Acode%20%3E%20span%2Eal%20%7B%20color%3A%20%23ff0000%3B%20font%2Dweight%3A%20bold%3B%20%7D%20%0Acode%20%3E%20span%2Efu%20%7B%20color%3A%20%23900%3B%20font%2Dweight%3A%20bold%3B%20%7D%20%0Acode%20%3E%20span%2Eer%20%7B%20color%3A%20%23a61717%3B%20background%2Dcolor%3A%20%23e3d2d2%3B%20%7D%20%0A" type="text/css" />
 
 
 
@@ -336,7 +141,7 @@ code > span.er { color: #a61717; background-color: #e3d2d2; }
 
 <h1 class="title toc-ignore">Probabilistic Sensitivity Analysis: Generation</h1>
 <h4 class="author">Fernando Alarid-Escudero, Greg Knowlton, Eva Enns, and the DARTH Team</h4>
-<h4 class="date">2021-03-16</h4>
+<h4 class="date">2021-05-30</h4>
 
 
 
@@ -348,326 +153,326 @@ code > span.er { color: #a61717; background-color: #e3d2d2; }
 <p>In order to generate a PSA in <code>dampack</code>, the user must input the code for the decision analytic model in a standardized format that is compatible with the <code>run_psa</code> function. This is the same format required for the <code>FUN</code> argument of <code>run_owsa_det</code> and <code>run_twsa_det</code>.</p>
 <p>The user-defined model function must accept a single input containing a list of the parameters from the <code>params_basecase</code> argument. In the example model shown below, this list is named <code>l_params</code>, and the variables contained in this list are the only variables that are allowed to be varied through the <code>params_range</code> argument in the DSA. Optionally, additional function inputs for <code>FUN</code> can be supplied through the <code>...</code> argument of <code>run_owsa_det</code>/<code>run_twsa_det</code>, but these inputs are not allowed to vary in the sensitivity analysis. These additional inputs must be arguments of <code>FUN</code>, like <code>n_wtp</code> in the example of <code>calculate_ce_out()</code> below. <code>FUN</code> and its component functions are also able to incorporate variables stored in the global environment, such as <code>n_age_init</code> or <code>n_age_max</code> in the example.</p>
 <p>The user-defined model function must return a data.frame where the first column contains a character vector of the strategy names, and the subsequent columns contain numeric vectors of all relevant model outcomes. Each row of the data.frame will consist of a strategy name followed by the corresponding outcome values for that strategy. These model outcomes must be calculated internally within <code>FUN</code>. The model outcomes are not limited to typical outcomes like cost or effectiveness and can be any numerical outcome that the user chooses to model.</p>
-<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1"></a><span class="kw">library</span>(dampack)</span>
-<span id="cb1-2"><a href="#cb1-2"></a>run_sick_sicker_model &lt;-<span class="st"> </span><span class="cf">function</span>(l_params, <span class="dt">verbose =</span> <span class="ot">FALSE</span>) {</span>
-<span id="cb1-3"><a href="#cb1-3"></a>  <span class="kw">with</span>(<span class="kw">as.list</span>(l_params), {</span>
-<span id="cb1-4"><a href="#cb1-4"></a>    <span class="co"># l_params must include:</span></span>
-<span id="cb1-5"><a href="#cb1-5"></a>    <span class="co"># -- disease progression parameters (annual): r_HD, p_S1S2, hr_S1D, hr_S2D, </span></span>
-<span id="cb1-6"><a href="#cb1-6"></a>    <span class="co"># -- initial cohort distribution: v_s_init</span></span>
-<span id="cb1-7"><a href="#cb1-7"></a>    <span class="co"># -- vector of annual state utilities: v_state_utility = c(u_H, u_S1, u_S2, u_D)</span></span>
-<span id="cb1-8"><a href="#cb1-8"></a>    <span class="co"># -- vector of annual state costs: v_state_cost = c(c_H, c_S1, c_S2, c_D)</span></span>
-<span id="cb1-9"><a href="#cb1-9"></a>    <span class="co"># -- time horizon (in annual cycles): n_cyles</span></span>
-<span id="cb1-10"><a href="#cb1-10"></a>    <span class="co"># -- annual discount rate: r_disc</span></span>
-<span id="cb1-11"><a href="#cb1-11"></a>    </span>
-<span id="cb1-12"><a href="#cb1-12"></a>    <span class="co">####### SET INTERNAL PARAMETERS #########################################</span></span>
-<span id="cb1-13"><a href="#cb1-13"></a>    </span>
-<span id="cb1-14"><a href="#cb1-14"></a>    <span class="co"># state names</span></span>
-<span id="cb1-15"><a href="#cb1-15"></a>    v_names_states &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="st">&quot;H&quot;</span>, <span class="st">&quot;S1&quot;</span>, <span class="st">&quot;S2&quot;</span>, <span class="st">&quot;D&quot;</span>)</span>
-<span id="cb1-16"><a href="#cb1-16"></a>    n_states &lt;-<span class="st"> </span><span class="kw">length</span>(v_names_states)</span>
-<span id="cb1-17"><a href="#cb1-17"></a>    </span>
-<span id="cb1-18"><a href="#cb1-18"></a>    <span class="co"># vector of discount weights</span></span>
-<span id="cb1-19"><a href="#cb1-19"></a>    v_dw  &lt;-<span class="st"> </span><span class="dv">1</span> <span class="op">/</span><span class="st"> </span>((<span class="dv">1</span> <span class="op">+</span><span class="st"> </span>r_disc) <span class="op">^</span><span class="st"> </span>(<span class="dv">0</span><span class="op">:</span>n_cycles))</span>
-<span id="cb1-20"><a href="#cb1-20"></a>    </span>
-<span id="cb1-21"><a href="#cb1-21"></a>    <span class="co"># state rewards</span></span>
-<span id="cb1-22"><a href="#cb1-22"></a>    v_state_cost &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="st">&quot;H&quot;</span> =<span class="st"> </span>c_H, <span class="st">&quot;S1&quot;</span> =<span class="st"> </span>c_S1, <span class="st">&quot;S2&quot;</span> =<span class="st"> </span>c_S2, <span class="st">&quot;D&quot;</span> =<span class="st"> </span>c_D)</span>
-<span id="cb1-23"><a href="#cb1-23"></a>    v_state_utility &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="st">&quot;H&quot;</span> =<span class="st"> </span>u_H, <span class="st">&quot;S1&quot;</span> =<span class="st"> </span>u_S1, <span class="st">&quot;S2&quot;</span> =<span class="st"> </span>u_S2, <span class="st">&quot;D&quot;</span> =<span class="st"> </span>u_D)</span>
-<span id="cb1-24"><a href="#cb1-24"></a>    </span>
-<span id="cb1-25"><a href="#cb1-25"></a>    <span class="co"># transition probability values</span></span>
-<span id="cb1-26"><a href="#cb1-26"></a>    r_S1D &lt;-<span class="st"> </span>hr_S1D <span class="op">*</span><span class="st"> </span>r_HD   <span class="co"># rate of death in sick state</span></span>
-<span id="cb1-27"><a href="#cb1-27"></a>    r_S2D &lt;-<span class="st"> </span>hr_S2D <span class="op">*</span><span class="st"> </span>r_HD   <span class="co"># rate of death in sicker state</span></span>
-<span id="cb1-28"><a href="#cb1-28"></a>    p_S1D &lt;-<span class="st"> </span><span class="dv">1</span> <span class="op">-</span><span class="st"> </span><span class="kw">exp</span>(<span class="op">-</span>r_S1D) <span class="co"># probability of dying when sick</span></span>
-<span id="cb1-29"><a href="#cb1-29"></a>    p_S2D &lt;-<span class="st"> </span><span class="dv">1</span> <span class="op">-</span><span class="st"> </span><span class="kw">exp</span>(<span class="op">-</span>r_S2D) <span class="co"># probability of dying when sicker</span></span>
-<span id="cb1-30"><a href="#cb1-30"></a>    p_HD  &lt;-<span class="st"> </span><span class="dv">1</span> <span class="op">-</span><span class="st"> </span><span class="kw">exp</span>(<span class="op">-</span>r_HD)   <span class="co"># probability of dying when healthy</span></span>
-<span id="cb1-31"><a href="#cb1-31"></a>    </span>
-<span id="cb1-32"><a href="#cb1-32"></a>    <span class="co">## Initialize transition probability matrix </span></span>
-<span id="cb1-33"><a href="#cb1-33"></a>    <span class="co"># all transitions to a non-death state are assumed to be conditional on survival </span></span>
-<span id="cb1-34"><a href="#cb1-34"></a>    m_P &lt;-<span class="st"> </span><span class="kw">matrix</span>(<span class="dv">0</span>, </span>
-<span id="cb1-35"><a href="#cb1-35"></a>                  <span class="dt">nrow =</span> n_states, <span class="dt">ncol =</span> n_states, </span>
-<span id="cb1-36"><a href="#cb1-36"></a>                  <span class="dt">dimnames =</span> <span class="kw">list</span>(v_names_states, v_names_states)) <span class="co"># define row and column names</span></span>
-<span id="cb1-37"><a href="#cb1-37"></a>    <span class="co">## Fill in matrix</span></span>
-<span id="cb1-38"><a href="#cb1-38"></a>    <span class="co"># From H</span></span>
-<span id="cb1-39"><a href="#cb1-39"></a>    m_P[<span class="st">&quot;H&quot;</span>, <span class="st">&quot;H&quot;</span>]   &lt;-<span class="st"> </span>(<span class="dv">1</span> <span class="op">-</span><span class="st"> </span>p_HD) <span class="op">*</span><span class="st"> </span>(<span class="dv">1</span> <span class="op">-</span><span class="st"> </span>p_HS1)    </span>
-<span id="cb1-40"><a href="#cb1-40"></a>    m_P[<span class="st">&quot;H&quot;</span>, <span class="st">&quot;S1&quot;</span>]  &lt;-<span class="st"> </span>(<span class="dv">1</span> <span class="op">-</span><span class="st"> </span>p_HD) <span class="op">*</span><span class="st"> </span>p_HS1 </span>
-<span id="cb1-41"><a href="#cb1-41"></a>    m_P[<span class="st">&quot;H&quot;</span>, <span class="st">&quot;D&quot;</span>]   &lt;-<span class="st"> </span>p_HD</span>
-<span id="cb1-42"><a href="#cb1-42"></a>    <span class="co"># From S1</span></span>
-<span id="cb1-43"><a href="#cb1-43"></a>    m_P[<span class="st">&quot;S1&quot;</span>, <span class="st">&quot;H&quot;</span>]  &lt;-<span class="st"> </span>(<span class="dv">1</span> <span class="op">-</span><span class="st"> </span>p_S1D) <span class="op">*</span><span class="st"> </span>p_S1H</span>
-<span id="cb1-44"><a href="#cb1-44"></a>    m_P[<span class="st">&quot;S1&quot;</span>, <span class="st">&quot;S1&quot;</span>] &lt;-<span class="st"> </span>(<span class="dv">1</span> <span class="op">-</span><span class="st"> </span>p_S1D) <span class="op">*</span><span class="st"> </span>(<span class="dv">1</span> <span class="op">-</span><span class="st"> </span>(p_S1H <span class="op">+</span><span class="st"> </span>p_S1S2))</span>
-<span id="cb1-45"><a href="#cb1-45"></a>    m_P[<span class="st">&quot;S1&quot;</span>, <span class="st">&quot;S2&quot;</span>] &lt;-<span class="st"> </span>(<span class="dv">1</span> <span class="op">-</span><span class="st"> </span>p_S1D) <span class="op">*</span><span class="st"> </span>p_S1S2</span>
-<span id="cb1-46"><a href="#cb1-46"></a>    m_P[<span class="st">&quot;S1&quot;</span>, <span class="st">&quot;D&quot;</span>]  &lt;-<span class="st"> </span>p_S1D</span>
-<span id="cb1-47"><a href="#cb1-47"></a>    <span class="co"># From S2</span></span>
-<span id="cb1-48"><a href="#cb1-48"></a>    m_P[<span class="st">&quot;S2&quot;</span>, <span class="st">&quot;S2&quot;</span>] &lt;-<span class="st"> </span><span class="dv">1</span> <span class="op">-</span><span class="st"> </span>p_S2D</span>
-<span id="cb1-49"><a href="#cb1-49"></a>    m_P[<span class="st">&quot;S2&quot;</span>, <span class="st">&quot;D&quot;</span>]  &lt;-<span class="st"> </span>p_S2D</span>
-<span id="cb1-50"><a href="#cb1-50"></a>    <span class="co"># From D</span></span>
-<span id="cb1-51"><a href="#cb1-51"></a>    m_P[<span class="st">&quot;D&quot;</span>, <span class="st">&quot;D&quot;</span>]   &lt;-<span class="st"> </span><span class="dv">1</span></span>
-<span id="cb1-52"><a href="#cb1-52"></a>    </span>
-<span id="cb1-53"><a href="#cb1-53"></a>    <span class="co"># check that all transition matrix entries are between 0 and 1 </span></span>
-<span id="cb1-54"><a href="#cb1-54"></a>    <span class="cf">if</span>(<span class="op">!</span><span class="kw">all</span>(m_P <span class="op">&lt;=</span><span class="st"> </span><span class="dv">1</span> <span class="op">&amp;</span><span class="st"> </span>m_P <span class="op">&gt;=</span><span class="st"> </span><span class="dv">0</span>)){</span>
-<span id="cb1-55"><a href="#cb1-55"></a>      <span class="kw">stop</span>(<span class="st">&quot;This is not a valid transition matrix (entries are not between 0 and 1&quot;</span>)</span>
-<span id="cb1-56"><a href="#cb1-56"></a>    } <span class="cf">else</span></span>
-<span id="cb1-57"><a href="#cb1-57"></a>      <span class="co"># check transition matrix rows add up to 1</span></span>
-<span id="cb1-58"><a href="#cb1-58"></a>      <span class="cf">if</span> (<span class="op">!</span><span class="kw">all.equal</span>(<span class="kw">as.numeric</span>(<span class="kw">rowSums</span>(m_P)),<span class="kw">rep</span>(<span class="dv">1</span>,n_states))){</span>
-<span id="cb1-59"><a href="#cb1-59"></a>        <span class="kw">stop</span>(<span class="st">&quot;This is not a valid transition matrix (rows do not sum to 1)&quot;</span>)</span>
-<span id="cb1-60"><a href="#cb1-60"></a>      }</span>
-<span id="cb1-61"><a href="#cb1-61"></a>    </span>
-<span id="cb1-62"><a href="#cb1-62"></a>    <span class="co">####### INITIALIZATION #########################################</span></span>
-<span id="cb1-63"><a href="#cb1-63"></a>    <span class="co"># create the cohort trace</span></span>
-<span id="cb1-64"><a href="#cb1-64"></a>    m_Trace &lt;-<span class="st"> </span><span class="kw">matrix</span>(<span class="ot">NA</span>, <span class="dt">nrow =</span> n_cycles <span class="op">+</span><span class="st"> </span><span class="dv">1</span> , </span>
-<span id="cb1-65"><a href="#cb1-65"></a>                  <span class="dt">ncol =</span> n_states,</span>
-<span id="cb1-66"><a href="#cb1-66"></a>                  <span class="dt">dimnames =</span> <span class="kw">list</span>(<span class="dv">0</span><span class="op">:</span>n_cycles, v_names_states)) <span class="co"># create Markov trace</span></span>
-<span id="cb1-67"><a href="#cb1-67"></a>    </span>
-<span id="cb1-68"><a href="#cb1-68"></a>    <span class="co"># create vectors of costs and QALYs</span></span>
-<span id="cb1-69"><a href="#cb1-69"></a>    v_C &lt;-<span class="st"> </span>v_Q &lt;-<span class="st"> </span><span class="kw">numeric</span>(<span class="dt">length =</span> n_cycles <span class="op">+</span><span class="st"> </span><span class="dv">1</span>)</span>
-<span id="cb1-70"><a href="#cb1-70"></a>    </span>
-<span id="cb1-71"><a href="#cb1-71"></a>    <span class="co">############# PROCESS ###########################################</span></span>
-<span id="cb1-72"><a href="#cb1-72"></a>    </span>
-<span id="cb1-73"><a href="#cb1-73"></a>    m_Trace[<span class="dv">1</span>, ] &lt;-<span class="st"> </span>v_s_init <span class="co"># initialize Markov trace</span></span>
-<span id="cb1-74"><a href="#cb1-74"></a>    v_C[<span class="dv">1</span>] &lt;-<span class="st"> </span><span class="dv">0</span> <span class="co"># no upfront costs</span></span>
-<span id="cb1-75"><a href="#cb1-75"></a>    v_Q[<span class="dv">1</span>] &lt;-<span class="st"> </span><span class="dv">0</span> <span class="co"># no upfront QALYs</span></span>
-<span id="cb1-76"><a href="#cb1-76"></a>    </span>
-<span id="cb1-77"><a href="#cb1-77"></a>    <span class="cf">for</span> (t <span class="cf">in</span> <span class="dv">1</span><span class="op">:</span>n_cycles){ <span class="co"># throughout the number of cycles</span></span>
-<span id="cb1-78"><a href="#cb1-78"></a>      m_Trace[t <span class="op">+</span><span class="st"> </span><span class="dv">1</span>, ] &lt;-<span class="st"> </span>m_Trace[t, ] <span class="op">%*%</span><span class="st"> </span>m_P <span class="co"># calculate trace for cycle (t + 1) based on cycle t</span></span>
-<span id="cb1-79"><a href="#cb1-79"></a>      </span>
-<span id="cb1-80"><a href="#cb1-80"></a>      v_C[t <span class="op">+</span><span class="st"> </span><span class="dv">1</span>] &lt;-<span class="st"> </span>m_Trace[t <span class="op">+</span><span class="st"> </span><span class="dv">1</span>, ] <span class="op">%*%</span><span class="st"> </span>v_state_cost</span>
-<span id="cb1-81"><a href="#cb1-81"></a>      </span>
-<span id="cb1-82"><a href="#cb1-82"></a>      v_Q[t <span class="op">+</span><span class="st"> </span><span class="dv">1</span>] &lt;-<span class="st"> </span>m_Trace[t <span class="op">+</span><span class="st"> </span><span class="dv">1</span>, ] <span class="op">%*%</span><span class="st"> </span>v_state_utility</span>
-<span id="cb1-83"><a href="#cb1-83"></a>      </span>
-<span id="cb1-84"><a href="#cb1-84"></a>    }</span>
-<span id="cb1-85"><a href="#cb1-85"></a>    </span>
-<span id="cb1-86"><a href="#cb1-86"></a>    <span class="co">#############  PRIMARY ECONOMIC OUTPUTS  #########################</span></span>
-<span id="cb1-87"><a href="#cb1-87"></a>    </span>
-<span id="cb1-88"><a href="#cb1-88"></a>    <span class="co"># Total discounted costs</span></span>
-<span id="cb1-89"><a href="#cb1-89"></a>    n_tot_cost &lt;-<span class="st"> </span><span class="kw">t</span>(v_C) <span class="op">%*%</span><span class="st"> </span>v_dw</span>
-<span id="cb1-90"><a href="#cb1-90"></a>    </span>
-<span id="cb1-91"><a href="#cb1-91"></a>    <span class="co"># Total discounted QALYs</span></span>
-<span id="cb1-92"><a href="#cb1-92"></a>    n_tot_qaly &lt;-<span class="st"> </span><span class="kw">t</span>(v_Q) <span class="op">%*%</span><span class="st"> </span>v_dw</span>
-<span id="cb1-93"><a href="#cb1-93"></a>    </span>
-<span id="cb1-94"><a href="#cb1-94"></a>    <span class="co">#############  OTHER OUTPUTS   ###################################</span></span>
-<span id="cb1-95"><a href="#cb1-95"></a>    </span>
-<span id="cb1-96"><a href="#cb1-96"></a>    <span class="co"># Total discounted life-years (sometimes used instead of QALYs)</span></span>
-<span id="cb1-97"><a href="#cb1-97"></a>    n_tot_ly &lt;-<span class="st"> </span><span class="kw">t</span>(m_Trace <span class="op">%*%</span><span class="st"> </span><span class="kw">c</span>(<span class="dv">1</span>, <span class="dv">1</span>, <span class="dv">1</span>, <span class="dv">0</span>)) <span class="op">%*%</span><span class="st"> </span>v_dw</span>
-<span id="cb1-98"><a href="#cb1-98"></a>    </span>
-<span id="cb1-99"><a href="#cb1-99"></a>    <span class="co">####### RETURN OUTPUT  ###########################################</span></span>
-<span id="cb1-100"><a href="#cb1-100"></a>    out &lt;-<span class="st"> </span><span class="kw">list</span>(<span class="dt">m_Trace =</span> m_Trace,</span>
-<span id="cb1-101"><a href="#cb1-101"></a>                <span class="dt">m_P =</span> m_P,</span>
-<span id="cb1-102"><a href="#cb1-102"></a>                l_params,</span>
-<span id="cb1-103"><a href="#cb1-103"></a>                <span class="dt">n_tot_cost =</span> n_tot_cost,</span>
-<span id="cb1-104"><a href="#cb1-104"></a>                <span class="dt">n_tot_qaly =</span> n_tot_qaly,</span>
-<span id="cb1-105"><a href="#cb1-105"></a>                <span class="dt">n_tot_ly =</span> n_tot_ly)</span>
-<span id="cb1-106"><a href="#cb1-106"></a>    </span>
-<span id="cb1-107"><a href="#cb1-107"></a>    <span class="kw">return</span>(out)</span>
-<span id="cb1-108"><a href="#cb1-108"></a>  }</span>
-<span id="cb1-109"><a href="#cb1-109"></a>  )</span>
-<span id="cb1-110"><a href="#cb1-110"></a>}</span></code></pre></div>
-<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1"></a>simulate_strategies &lt;-<span class="st"> </span><span class="cf">function</span>(l_params, <span class="dt">wtp =</span> <span class="dv">100000</span>){</span>
-<span id="cb2-2"><a href="#cb2-2"></a>    <span class="co"># l_params must include:</span></span>
-<span id="cb2-3"><a href="#cb2-3"></a>    <span class="co"># -- *** Model parameters ***</span></span>
-<span id="cb2-4"><a href="#cb2-4"></a>    <span class="co"># -- disease progression parameters (annual): r_HD, p_S1S2, hr_S1D, hr_S2D, </span></span>
-<span id="cb2-5"><a href="#cb2-5"></a>    <span class="co"># -- initial cohort distribution: v_s_init</span></span>
-<span id="cb2-6"><a href="#cb2-6"></a>    <span class="co"># -- vector of annual state utilities: v_state_utility = c(u_H, u_S1, u_S2, u_D)</span></span>
-<span id="cb2-7"><a href="#cb2-7"></a>    <span class="co"># -- vector of annual state costs: v_state_cost = c(c_H, c_S1, c_S2, c_D)</span></span>
-<span id="cb2-8"><a href="#cb2-8"></a>    <span class="co"># -- time horizon (in annual cycles): n_cyles</span></span>
-<span id="cb2-9"><a href="#cb2-9"></a>    <span class="co"># -- annual discount rate: r_disc</span></span>
-<span id="cb2-10"><a href="#cb2-10"></a>    <span class="co"># -- *** Strategy specific parameters ***</span></span>
-<span id="cb2-11"><a href="#cb2-11"></a>    <span class="co"># -- treartment costs (applied to Sick and Sicker states): c_trtA, c_trtB</span></span>
-<span id="cb2-12"><a href="#cb2-12"></a>    <span class="co"># -- utility with Treatment_A (for Sick state only): u_trtA</span></span>
-<span id="cb2-13"><a href="#cb2-13"></a>    <span class="co"># -- hazard ratio of progression with Treatment_B: hr_S1S1_trtB</span></span>
-<span id="cb2-14"><a href="#cb2-14"></a>  </span>
-<span id="cb2-15"><a href="#cb2-15"></a>  <span class="kw">with</span>(<span class="kw">as.list</span>(l_params), {</span>
-<span id="cb2-16"><a href="#cb2-16"></a>    </span>
-<span id="cb2-17"><a href="#cb2-17"></a>    <span class="co">####### SET INTERNAL PARAMETERS #########################################</span></span>
-<span id="cb2-18"><a href="#cb2-18"></a>    <span class="co"># Strategy names</span></span>
-<span id="cb2-19"><a href="#cb2-19"></a>    v_names_strat &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="st">&quot;No_Treatment&quot;</span>, <span class="st">&quot;Treatment_A&quot;</span>, <span class="st">&quot;Treatment_B&quot;</span>)</span>
-<span id="cb2-20"><a href="#cb2-20"></a>    <span class="co"># Number of strategies</span></span>
-<span id="cb2-21"><a href="#cb2-21"></a>    n_strat &lt;-<span class="st"> </span><span class="kw">length</span>(v_names_strat)</span>
-<span id="cb2-22"><a href="#cb2-22"></a>    </span>
-<span id="cb2-23"><a href="#cb2-23"></a>    <span class="co">## Treatment_A</span></span>
-<span id="cb2-24"><a href="#cb2-24"></a>    <span class="co"># utility impacts</span></span>
-<span id="cb2-25"><a href="#cb2-25"></a>    u_S1_trtA &lt;-<span class="st"> </span>u_trtA</span>
-<span id="cb2-26"><a href="#cb2-26"></a>    <span class="co"># include treatment costs</span></span>
-<span id="cb2-27"><a href="#cb2-27"></a>    c_S1_trtA &lt;-<span class="st"> </span>c_S1 <span class="op">+</span><span class="st"> </span>c_trtA</span>
-<span id="cb2-28"><a href="#cb2-28"></a>    c_S2_trtA &lt;-<span class="st"> </span>c_S2 <span class="op">+</span><span class="st"> </span>c_trtA</span>
-<span id="cb2-29"><a href="#cb2-29"></a>    </span>
-<span id="cb2-30"><a href="#cb2-30"></a>    <span class="co">## Treatment_B</span></span>
-<span id="cb2-31"><a href="#cb2-31"></a>    <span class="co"># progression impacts</span></span>
-<span id="cb2-32"><a href="#cb2-32"></a>    r_S1S2_trtB &lt;-<span class="st"> </span><span class="op">-</span><span class="kw">log</span>(<span class="dv">1</span> <span class="op">-</span><span class="st"> </span>p_S1S2) <span class="op">*</span><span class="st"> </span>hr_S1S2_trtB </span>
-<span id="cb2-33"><a href="#cb2-33"></a>    p_S1S2_trtB &lt;-<span class="st"> </span><span class="dv">1</span> <span class="op">-</span><span class="st"> </span><span class="kw">exp</span>(<span class="op">-</span>r_S1S2_trtB)</span>
-<span id="cb2-34"><a href="#cb2-34"></a>    <span class="co"># include treatment costs</span></span>
-<span id="cb2-35"><a href="#cb2-35"></a>    c_S1_trtB &lt;-<span class="st"> </span>c_S1 <span class="op">+</span><span class="st"> </span>c_trtB</span>
-<span id="cb2-36"><a href="#cb2-36"></a>    c_S2_trtB &lt;-<span class="st"> </span>c_S2 <span class="op">+</span><span class="st"> </span>c_trtB</span>
-<span id="cb2-37"><a href="#cb2-37"></a></span>
-<span id="cb2-38"><a href="#cb2-38"></a>    </span>
-<span id="cb2-39"><a href="#cb2-39"></a>    </span>
-<span id="cb2-40"><a href="#cb2-40"></a>    <span class="co">####### INITIALIZATION #########################################</span></span>
-<span id="cb2-41"><a href="#cb2-41"></a>    <span class="co"># Create cost-effectiveness results data frame</span></span>
-<span id="cb2-42"><a href="#cb2-42"></a>    df_ce &lt;-<span class="st"> </span><span class="kw">data.frame</span>(<span class="dt">Strategy =</span> v_names_strat,</span>
-<span id="cb2-43"><a href="#cb2-43"></a>                        <span class="dt">Cost =</span> <span class="kw">numeric</span>(n_strat),</span>
-<span id="cb2-44"><a href="#cb2-44"></a>                        <span class="dt">QALY =</span> <span class="kw">numeric</span>(n_strat),</span>
-<span id="cb2-45"><a href="#cb2-45"></a>                        <span class="dt">LY =</span> <span class="kw">numeric</span>(n_strat),</span>
-<span id="cb2-46"><a href="#cb2-46"></a>                        <span class="dt">stringsAsFactors =</span> <span class="ot">FALSE</span>)</span>
-<span id="cb2-47"><a href="#cb2-47"></a>    </span>
-<span id="cb2-48"><a href="#cb2-48"></a>    </span>
-<span id="cb2-49"><a href="#cb2-49"></a>    <span class="co">######### PROCESS ##############################################</span></span>
-<span id="cb2-50"><a href="#cb2-50"></a>    <span class="cf">for</span> (i <span class="cf">in</span> <span class="dv">1</span><span class="op">:</span>n_strat){</span>
-<span id="cb2-51"><a href="#cb2-51"></a>      l_params_markov &lt;-<span class="st"> </span><span class="kw">list</span>(<span class="dt">n_cycles =</span> n_cycles, <span class="dt">r_disc =</span> r_disc, <span class="dt">v_s_init =</span> v_s_init,</span>
-<span id="cb2-52"><a href="#cb2-52"></a>                              <span class="dt">c_H =</span>  c_H, <span class="dt">c_S1 =</span> c_S2, <span class="dt">c_S2 =</span> c_S1, <span class="dt">c_D =</span> c_D,</span>
-<span id="cb2-53"><a href="#cb2-53"></a>                              <span class="dt">u_H =</span>  u_H, <span class="dt">u_S1 =</span> u_S2, <span class="dt">u_S2 =</span> u_S1, <span class="dt">u_D =</span> u_D,</span>
-<span id="cb2-54"><a href="#cb2-54"></a>                              <span class="dt">r_HD =</span> r_HD, <span class="dt">hr_S1D =</span> hr_S1D, <span class="dt">hr_S2D =</span> hr_S2D,</span>
-<span id="cb2-55"><a href="#cb2-55"></a>                              <span class="dt">p_HS1 =</span> p_HS1, <span class="dt">p_S1H =</span> p_S1H, <span class="dt">p_S1S2 =</span> p_S1S2)</span>
-<span id="cb2-56"><a href="#cb2-56"></a>      </span>
-<span id="cb2-57"><a href="#cb2-57"></a>      <span class="cf">if</span> (v_names_strat[i] <span class="op">==</span><span class="st"> &quot;Treatment_A&quot;</span>){</span>
-<span id="cb2-58"><a href="#cb2-58"></a>        l_params_markov<span class="op">$</span>u_S1 &lt;-<span class="st"> </span>u_S1_trtA</span>
-<span id="cb2-59"><a href="#cb2-59"></a>        l_params_markov<span class="op">$</span>c_S1 &lt;-<span class="st"> </span>c_S1_trtA</span>
-<span id="cb2-60"><a href="#cb2-60"></a>        l_params_markov<span class="op">$</span>c_S2 &lt;-<span class="st"> </span>c_S2_trtA</span>
-<span id="cb2-61"><a href="#cb2-61"></a>        </span>
-<span id="cb2-62"><a href="#cb2-62"></a>      } <span class="cf">else</span> <span class="cf">if</span>(v_names_strat[i] <span class="op">==</span><span class="st"> &quot;Treatment_B&quot;</span>){</span>
-<span id="cb2-63"><a href="#cb2-63"></a>        l_params_markov<span class="op">$</span>p_S1S2 &lt;-<span class="st"> </span>p_S1S2_trtB</span>
-<span id="cb2-64"><a href="#cb2-64"></a>        l_params_markov<span class="op">$</span>c_S1   &lt;-<span class="st"> </span>c_S1_trtB</span>
-<span id="cb2-65"><a href="#cb2-65"></a>        l_params_markov<span class="op">$</span>c_S2   &lt;-<span class="st"> </span>c_S2_trtB</span>
-<span id="cb2-66"><a href="#cb2-66"></a>      }</span>
-<span id="cb2-67"><a href="#cb2-67"></a></span>
-<span id="cb2-68"><a href="#cb2-68"></a>      l_result &lt;-<span class="st"> </span><span class="kw">run_sick_sicker_model</span>(l_params_markov)</span>
-<span id="cb2-69"><a href="#cb2-69"></a>      </span>
-<span id="cb2-70"><a href="#cb2-70"></a>      df_ce[i, <span class="kw">c</span>(<span class="st">&quot;Cost&quot;</span>, <span class="st">&quot;QALY&quot;</span>, <span class="st">&quot;LY&quot;</span>)] &lt;-<span class="st"> </span><span class="kw">c</span>(l_result<span class="op">$</span>n_tot_cost,</span>
-<span id="cb2-71"><a href="#cb2-71"></a>                                           l_result<span class="op">$</span>n_tot_qaly,</span>
-<span id="cb2-72"><a href="#cb2-72"></a>                                           l_result<span class="op">$</span>n_tot_ly)</span>
-<span id="cb2-73"><a href="#cb2-73"></a>      df_ce[i, <span class="st">&quot;NMB&quot;</span>] &lt;-<span class="st"> </span>l_result<span class="op">$</span>n_tot_qaly <span class="op">*</span><span class="st"> </span>wtp <span class="op">-</span><span class="st"> </span>l_result<span class="op">$</span>n_tot_cost</span>
-<span id="cb2-74"><a href="#cb2-74"></a>    }</span>
-<span id="cb2-75"><a href="#cb2-75"></a>    </span>
-<span id="cb2-76"><a href="#cb2-76"></a>    <span class="kw">return</span>(df_ce)</span>
-<span id="cb2-77"><a href="#cb2-77"></a>  })</span>
-<span id="cb2-78"><a href="#cb2-78"></a>}</span></code></pre></div>
+<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(dampack)</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>run_sick_sicker_model <span class="ot">&lt;-</span> <span class="cf">function</span>(l_params, <span class="at">verbose =</span> <span class="cn">FALSE</span>) {</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">with</span>(<span class="fu">as.list</span>(l_params), {</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>    <span class="co"># l_params must include:</span></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>    <span class="co"># -- disease progression parameters (annual): r_HD, p_S1S2, hr_S1D, hr_S2D, </span></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>    <span class="co"># -- initial cohort distribution: v_s_init</span></span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>    <span class="co"># -- vector of annual state utilities: v_state_utility = c(u_H, u_S1, u_S2, u_D)</span></span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>    <span class="co"># -- vector of annual state costs: v_state_cost = c(c_H, c_S1, c_S2, c_D)</span></span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>    <span class="co"># -- time horizon (in annual cycles): n_cyles</span></span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>    <span class="co"># -- annual discount rate: r_disc</span></span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>    <span class="do">####### SET INTERNAL PARAMETERS #########################################</span></span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a>    <span class="co"># state names</span></span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a>    v_names_states <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">&quot;H&quot;</span>, <span class="st">&quot;S1&quot;</span>, <span class="st">&quot;S2&quot;</span>, <span class="st">&quot;D&quot;</span>)</span>
+<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a>    n_states <span class="ot">&lt;-</span> <span class="fu">length</span>(v_names_states)</span>
+<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a>    <span class="co"># vector of discount weights</span></span>
+<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a>    v_dw  <span class="ot">&lt;-</span> <span class="dv">1</span> <span class="sc">/</span> ((<span class="dv">1</span> <span class="sc">+</span> r_disc) <span class="sc">^</span> (<span class="dv">0</span><span class="sc">:</span>n_cycles))</span>
+<span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a>    <span class="co"># state rewards</span></span>
+<span id="cb1-22"><a href="#cb1-22" aria-hidden="true" tabindex="-1"></a>    v_state_cost <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">&quot;H&quot;</span> <span class="ot">=</span> c_H, <span class="st">&quot;S1&quot;</span> <span class="ot">=</span> c_S1, <span class="st">&quot;S2&quot;</span> <span class="ot">=</span> c_S2, <span class="st">&quot;D&quot;</span> <span class="ot">=</span> c_D)</span>
+<span id="cb1-23"><a href="#cb1-23" aria-hidden="true" tabindex="-1"></a>    v_state_utility <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">&quot;H&quot;</span> <span class="ot">=</span> u_H, <span class="st">&quot;S1&quot;</span> <span class="ot">=</span> u_S1, <span class="st">&quot;S2&quot;</span> <span class="ot">=</span> u_S2, <span class="st">&quot;D&quot;</span> <span class="ot">=</span> u_D)</span>
+<span id="cb1-24"><a href="#cb1-24" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb1-25"><a href="#cb1-25" aria-hidden="true" tabindex="-1"></a>    <span class="co"># transition probability values</span></span>
+<span id="cb1-26"><a href="#cb1-26" aria-hidden="true" tabindex="-1"></a>    r_S1D <span class="ot">&lt;-</span> hr_S1D <span class="sc">*</span> r_HD   <span class="co"># rate of death in sick state</span></span>
+<span id="cb1-27"><a href="#cb1-27" aria-hidden="true" tabindex="-1"></a>    r_S2D <span class="ot">&lt;-</span> hr_S2D <span class="sc">*</span> r_HD   <span class="co"># rate of death in sicker state</span></span>
+<span id="cb1-28"><a href="#cb1-28" aria-hidden="true" tabindex="-1"></a>    p_S1D <span class="ot">&lt;-</span> <span class="dv">1</span> <span class="sc">-</span> <span class="fu">exp</span>(<span class="sc">-</span>r_S1D) <span class="co"># probability of dying when sick</span></span>
+<span id="cb1-29"><a href="#cb1-29" aria-hidden="true" tabindex="-1"></a>    p_S2D <span class="ot">&lt;-</span> <span class="dv">1</span> <span class="sc">-</span> <span class="fu">exp</span>(<span class="sc">-</span>r_S2D) <span class="co"># probability of dying when sicker</span></span>
+<span id="cb1-30"><a href="#cb1-30" aria-hidden="true" tabindex="-1"></a>    p_HD  <span class="ot">&lt;-</span> <span class="dv">1</span> <span class="sc">-</span> <span class="fu">exp</span>(<span class="sc">-</span>r_HD)   <span class="co"># probability of dying when healthy</span></span>
+<span id="cb1-31"><a href="#cb1-31" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb1-32"><a href="#cb1-32" aria-hidden="true" tabindex="-1"></a>    <span class="do">## Initialize transition probability matrix </span></span>
+<span id="cb1-33"><a href="#cb1-33" aria-hidden="true" tabindex="-1"></a>    <span class="co"># all transitions to a non-death state are assumed to be conditional on survival </span></span>
+<span id="cb1-34"><a href="#cb1-34" aria-hidden="true" tabindex="-1"></a>    m_P <span class="ot">&lt;-</span> <span class="fu">matrix</span>(<span class="dv">0</span>, </span>
+<span id="cb1-35"><a href="#cb1-35" aria-hidden="true" tabindex="-1"></a>                  <span class="at">nrow =</span> n_states, <span class="at">ncol =</span> n_states, </span>
+<span id="cb1-36"><a href="#cb1-36" aria-hidden="true" tabindex="-1"></a>                  <span class="at">dimnames =</span> <span class="fu">list</span>(v_names_states, v_names_states)) <span class="co"># define row and column names</span></span>
+<span id="cb1-37"><a href="#cb1-37" aria-hidden="true" tabindex="-1"></a>    <span class="do">## Fill in matrix</span></span>
+<span id="cb1-38"><a href="#cb1-38" aria-hidden="true" tabindex="-1"></a>    <span class="co"># From H</span></span>
+<span id="cb1-39"><a href="#cb1-39" aria-hidden="true" tabindex="-1"></a>    m_P[<span class="st">&quot;H&quot;</span>, <span class="st">&quot;H&quot;</span>]   <span class="ot">&lt;-</span> (<span class="dv">1</span> <span class="sc">-</span> p_HD) <span class="sc">*</span> (<span class="dv">1</span> <span class="sc">-</span> p_HS1)    </span>
+<span id="cb1-40"><a href="#cb1-40" aria-hidden="true" tabindex="-1"></a>    m_P[<span class="st">&quot;H&quot;</span>, <span class="st">&quot;S1&quot;</span>]  <span class="ot">&lt;-</span> (<span class="dv">1</span> <span class="sc">-</span> p_HD) <span class="sc">*</span> p_HS1 </span>
+<span id="cb1-41"><a href="#cb1-41" aria-hidden="true" tabindex="-1"></a>    m_P[<span class="st">&quot;H&quot;</span>, <span class="st">&quot;D&quot;</span>]   <span class="ot">&lt;-</span> p_HD</span>
+<span id="cb1-42"><a href="#cb1-42" aria-hidden="true" tabindex="-1"></a>    <span class="co"># From S1</span></span>
+<span id="cb1-43"><a href="#cb1-43" aria-hidden="true" tabindex="-1"></a>    m_P[<span class="st">&quot;S1&quot;</span>, <span class="st">&quot;H&quot;</span>]  <span class="ot">&lt;-</span> (<span class="dv">1</span> <span class="sc">-</span> p_S1D) <span class="sc">*</span> p_S1H</span>
+<span id="cb1-44"><a href="#cb1-44" aria-hidden="true" tabindex="-1"></a>    m_P[<span class="st">&quot;S1&quot;</span>, <span class="st">&quot;S1&quot;</span>] <span class="ot">&lt;-</span> (<span class="dv">1</span> <span class="sc">-</span> p_S1D) <span class="sc">*</span> (<span class="dv">1</span> <span class="sc">-</span> (p_S1H <span class="sc">+</span> p_S1S2))</span>
+<span id="cb1-45"><a href="#cb1-45" aria-hidden="true" tabindex="-1"></a>    m_P[<span class="st">&quot;S1&quot;</span>, <span class="st">&quot;S2&quot;</span>] <span class="ot">&lt;-</span> (<span class="dv">1</span> <span class="sc">-</span> p_S1D) <span class="sc">*</span> p_S1S2</span>
+<span id="cb1-46"><a href="#cb1-46" aria-hidden="true" tabindex="-1"></a>    m_P[<span class="st">&quot;S1&quot;</span>, <span class="st">&quot;D&quot;</span>]  <span class="ot">&lt;-</span> p_S1D</span>
+<span id="cb1-47"><a href="#cb1-47" aria-hidden="true" tabindex="-1"></a>    <span class="co"># From S2</span></span>
+<span id="cb1-48"><a href="#cb1-48" aria-hidden="true" tabindex="-1"></a>    m_P[<span class="st">&quot;S2&quot;</span>, <span class="st">&quot;S2&quot;</span>] <span class="ot">&lt;-</span> <span class="dv">1</span> <span class="sc">-</span> p_S2D</span>
+<span id="cb1-49"><a href="#cb1-49" aria-hidden="true" tabindex="-1"></a>    m_P[<span class="st">&quot;S2&quot;</span>, <span class="st">&quot;D&quot;</span>]  <span class="ot">&lt;-</span> p_S2D</span>
+<span id="cb1-50"><a href="#cb1-50" aria-hidden="true" tabindex="-1"></a>    <span class="co"># From D</span></span>
+<span id="cb1-51"><a href="#cb1-51" aria-hidden="true" tabindex="-1"></a>    m_P[<span class="st">&quot;D&quot;</span>, <span class="st">&quot;D&quot;</span>]   <span class="ot">&lt;-</span> <span class="dv">1</span></span>
+<span id="cb1-52"><a href="#cb1-52" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb1-53"><a href="#cb1-53" aria-hidden="true" tabindex="-1"></a>    <span class="co"># check that all transition matrix entries are between 0 and 1 </span></span>
+<span id="cb1-54"><a href="#cb1-54" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span>(<span class="sc">!</span><span class="fu">all</span>(m_P <span class="sc">&lt;=</span> <span class="dv">1</span> <span class="sc">&amp;</span> m_P <span class="sc">&gt;=</span> <span class="dv">0</span>)){</span>
+<span id="cb1-55"><a href="#cb1-55" aria-hidden="true" tabindex="-1"></a>      <span class="fu">stop</span>(<span class="st">&quot;This is not a valid transition matrix (entries are not between 0 and 1&quot;</span>)</span>
+<span id="cb1-56"><a href="#cb1-56" aria-hidden="true" tabindex="-1"></a>    } <span class="cf">else</span></span>
+<span id="cb1-57"><a href="#cb1-57" aria-hidden="true" tabindex="-1"></a>      <span class="co"># check transition matrix rows add up to 1</span></span>
+<span id="cb1-58"><a href="#cb1-58" aria-hidden="true" tabindex="-1"></a>      <span class="cf">if</span> (<span class="sc">!</span><span class="fu">all.equal</span>(<span class="fu">as.numeric</span>(<span class="fu">rowSums</span>(m_P)),<span class="fu">rep</span>(<span class="dv">1</span>,n_states))){</span>
+<span id="cb1-59"><a href="#cb1-59" aria-hidden="true" tabindex="-1"></a>        <span class="fu">stop</span>(<span class="st">&quot;This is not a valid transition matrix (rows do not sum to 1)&quot;</span>)</span>
+<span id="cb1-60"><a href="#cb1-60" aria-hidden="true" tabindex="-1"></a>      }</span>
+<span id="cb1-61"><a href="#cb1-61" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb1-62"><a href="#cb1-62" aria-hidden="true" tabindex="-1"></a>    <span class="do">####### INITIALIZATION #########################################</span></span>
+<span id="cb1-63"><a href="#cb1-63" aria-hidden="true" tabindex="-1"></a>    <span class="co"># create the cohort trace</span></span>
+<span id="cb1-64"><a href="#cb1-64" aria-hidden="true" tabindex="-1"></a>    m_Trace <span class="ot">&lt;-</span> <span class="fu">matrix</span>(<span class="cn">NA</span>, <span class="at">nrow =</span> n_cycles <span class="sc">+</span> <span class="dv">1</span> , </span>
+<span id="cb1-65"><a href="#cb1-65" aria-hidden="true" tabindex="-1"></a>                  <span class="at">ncol =</span> n_states,</span>
+<span id="cb1-66"><a href="#cb1-66" aria-hidden="true" tabindex="-1"></a>                  <span class="at">dimnames =</span> <span class="fu">list</span>(<span class="dv">0</span><span class="sc">:</span>n_cycles, v_names_states)) <span class="co"># create Markov trace</span></span>
+<span id="cb1-67"><a href="#cb1-67" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb1-68"><a href="#cb1-68" aria-hidden="true" tabindex="-1"></a>    <span class="co"># create vectors of costs and QALYs</span></span>
+<span id="cb1-69"><a href="#cb1-69" aria-hidden="true" tabindex="-1"></a>    v_C <span class="ot">&lt;-</span> v_Q <span class="ot">&lt;-</span> <span class="fu">numeric</span>(<span class="at">length =</span> n_cycles <span class="sc">+</span> <span class="dv">1</span>)</span>
+<span id="cb1-70"><a href="#cb1-70" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb1-71"><a href="#cb1-71" aria-hidden="true" tabindex="-1"></a>    <span class="do">############# PROCESS ###########################################</span></span>
+<span id="cb1-72"><a href="#cb1-72" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb1-73"><a href="#cb1-73" aria-hidden="true" tabindex="-1"></a>    m_Trace[<span class="dv">1</span>, ] <span class="ot">&lt;-</span> v_s_init <span class="co"># initialize Markov trace</span></span>
+<span id="cb1-74"><a href="#cb1-74" aria-hidden="true" tabindex="-1"></a>    v_C[<span class="dv">1</span>] <span class="ot">&lt;-</span> <span class="dv">0</span> <span class="co"># no upfront costs</span></span>
+<span id="cb1-75"><a href="#cb1-75" aria-hidden="true" tabindex="-1"></a>    v_Q[<span class="dv">1</span>] <span class="ot">&lt;-</span> <span class="dv">0</span> <span class="co"># no upfront QALYs</span></span>
+<span id="cb1-76"><a href="#cb1-76" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb1-77"><a href="#cb1-77" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> (t <span class="cf">in</span> <span class="dv">1</span><span class="sc">:</span>n_cycles){ <span class="co"># throughout the number of cycles</span></span>
+<span id="cb1-78"><a href="#cb1-78" aria-hidden="true" tabindex="-1"></a>      m_Trace[t <span class="sc">+</span> <span class="dv">1</span>, ] <span class="ot">&lt;-</span> m_Trace[t, ] <span class="sc">%*%</span> m_P <span class="co"># calculate trace for cycle (t + 1) based on cycle t</span></span>
+<span id="cb1-79"><a href="#cb1-79" aria-hidden="true" tabindex="-1"></a>      </span>
+<span id="cb1-80"><a href="#cb1-80" aria-hidden="true" tabindex="-1"></a>      v_C[t <span class="sc">+</span> <span class="dv">1</span>] <span class="ot">&lt;-</span> m_Trace[t <span class="sc">+</span> <span class="dv">1</span>, ] <span class="sc">%*%</span> v_state_cost</span>
+<span id="cb1-81"><a href="#cb1-81" aria-hidden="true" tabindex="-1"></a>      </span>
+<span id="cb1-82"><a href="#cb1-82" aria-hidden="true" tabindex="-1"></a>      v_Q[t <span class="sc">+</span> <span class="dv">1</span>] <span class="ot">&lt;-</span> m_Trace[t <span class="sc">+</span> <span class="dv">1</span>, ] <span class="sc">%*%</span> v_state_utility</span>
+<span id="cb1-83"><a href="#cb1-83" aria-hidden="true" tabindex="-1"></a>      </span>
+<span id="cb1-84"><a href="#cb1-84" aria-hidden="true" tabindex="-1"></a>    }</span>
+<span id="cb1-85"><a href="#cb1-85" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb1-86"><a href="#cb1-86" aria-hidden="true" tabindex="-1"></a>    <span class="do">#############  PRIMARY ECONOMIC OUTPUTS  #########################</span></span>
+<span id="cb1-87"><a href="#cb1-87" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb1-88"><a href="#cb1-88" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Total discounted costs</span></span>
+<span id="cb1-89"><a href="#cb1-89" aria-hidden="true" tabindex="-1"></a>    n_tot_cost <span class="ot">&lt;-</span> <span class="fu">t</span>(v_C) <span class="sc">%*%</span> v_dw</span>
+<span id="cb1-90"><a href="#cb1-90" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb1-91"><a href="#cb1-91" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Total discounted QALYs</span></span>
+<span id="cb1-92"><a href="#cb1-92" aria-hidden="true" tabindex="-1"></a>    n_tot_qaly <span class="ot">&lt;-</span> <span class="fu">t</span>(v_Q) <span class="sc">%*%</span> v_dw</span>
+<span id="cb1-93"><a href="#cb1-93" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb1-94"><a href="#cb1-94" aria-hidden="true" tabindex="-1"></a>    <span class="do">#############  OTHER OUTPUTS   ###################################</span></span>
+<span id="cb1-95"><a href="#cb1-95" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb1-96"><a href="#cb1-96" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Total discounted life-years (sometimes used instead of QALYs)</span></span>
+<span id="cb1-97"><a href="#cb1-97" aria-hidden="true" tabindex="-1"></a>    n_tot_ly <span class="ot">&lt;-</span> <span class="fu">t</span>(m_Trace <span class="sc">%*%</span> <span class="fu">c</span>(<span class="dv">1</span>, <span class="dv">1</span>, <span class="dv">1</span>, <span class="dv">0</span>)) <span class="sc">%*%</span> v_dw</span>
+<span id="cb1-98"><a href="#cb1-98" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb1-99"><a href="#cb1-99" aria-hidden="true" tabindex="-1"></a>    <span class="do">####### RETURN OUTPUT  ###########################################</span></span>
+<span id="cb1-100"><a href="#cb1-100" aria-hidden="true" tabindex="-1"></a>    out <span class="ot">&lt;-</span> <span class="fu">list</span>(<span class="at">m_Trace =</span> m_Trace,</span>
+<span id="cb1-101"><a href="#cb1-101" aria-hidden="true" tabindex="-1"></a>                <span class="at">m_P =</span> m_P,</span>
+<span id="cb1-102"><a href="#cb1-102" aria-hidden="true" tabindex="-1"></a>                l_params,</span>
+<span id="cb1-103"><a href="#cb1-103" aria-hidden="true" tabindex="-1"></a>                <span class="at">n_tot_cost =</span> n_tot_cost,</span>
+<span id="cb1-104"><a href="#cb1-104" aria-hidden="true" tabindex="-1"></a>                <span class="at">n_tot_qaly =</span> n_tot_qaly,</span>
+<span id="cb1-105"><a href="#cb1-105" aria-hidden="true" tabindex="-1"></a>                <span class="at">n_tot_ly =</span> n_tot_ly)</span>
+<span id="cb1-106"><a href="#cb1-106" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb1-107"><a href="#cb1-107" aria-hidden="true" tabindex="-1"></a>    <span class="fu">return</span>(out)</span>
+<span id="cb1-108"><a href="#cb1-108" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb1-109"><a href="#cb1-109" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb1-110"><a href="#cb1-110" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div>
+<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>simulate_strategies <span class="ot">&lt;-</span> <span class="cf">function</span>(l_params, <span class="at">wtp =</span> <span class="dv">100000</span>){</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>    <span class="co"># l_params must include:</span></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>    <span class="co"># -- *** Model parameters ***</span></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>    <span class="co"># -- disease progression parameters (annual): r_HD, p_S1S2, hr_S1D, hr_S2D, </span></span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>    <span class="co"># -- initial cohort distribution: v_s_init</span></span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>    <span class="co"># -- vector of annual state utilities: v_state_utility = c(u_H, u_S1, u_S2, u_D)</span></span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>    <span class="co"># -- vector of annual state costs: v_state_cost = c(c_H, c_S1, c_S2, c_D)</span></span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>    <span class="co"># -- time horizon (in annual cycles): n_cyles</span></span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>    <span class="co"># -- annual discount rate: r_disc</span></span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a>    <span class="co"># -- *** Strategy specific parameters ***</span></span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a>    <span class="co"># -- treartment costs (applied to Sick and Sicker states): c_trtA, c_trtB</span></span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a>    <span class="co"># -- utility with Treatment_A (for Sick state only): u_trtA</span></span>
+<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a>    <span class="co"># -- hazard ratio of progression with Treatment_B: hr_S1S1_trtB</span></span>
+<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a>  <span class="fu">with</span>(<span class="fu">as.list</span>(l_params), {</span>
+<span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb2-17"><a href="#cb2-17" aria-hidden="true" tabindex="-1"></a>    <span class="do">####### SET INTERNAL PARAMETERS #########################################</span></span>
+<span id="cb2-18"><a href="#cb2-18" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Strategy names</span></span>
+<span id="cb2-19"><a href="#cb2-19" aria-hidden="true" tabindex="-1"></a>    v_names_strat <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">&quot;No_Treatment&quot;</span>, <span class="st">&quot;Treatment_A&quot;</span>, <span class="st">&quot;Treatment_B&quot;</span>)</span>
+<span id="cb2-20"><a href="#cb2-20" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Number of strategies</span></span>
+<span id="cb2-21"><a href="#cb2-21" aria-hidden="true" tabindex="-1"></a>    n_strat <span class="ot">&lt;-</span> <span class="fu">length</span>(v_names_strat)</span>
+<span id="cb2-22"><a href="#cb2-22" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb2-23"><a href="#cb2-23" aria-hidden="true" tabindex="-1"></a>    <span class="do">## Treatment_A</span></span>
+<span id="cb2-24"><a href="#cb2-24" aria-hidden="true" tabindex="-1"></a>    <span class="co"># utility impacts</span></span>
+<span id="cb2-25"><a href="#cb2-25" aria-hidden="true" tabindex="-1"></a>    u_S1_trtA <span class="ot">&lt;-</span> u_trtA</span>
+<span id="cb2-26"><a href="#cb2-26" aria-hidden="true" tabindex="-1"></a>    <span class="co"># include treatment costs</span></span>
+<span id="cb2-27"><a href="#cb2-27" aria-hidden="true" tabindex="-1"></a>    c_S1_trtA <span class="ot">&lt;-</span> c_S1 <span class="sc">+</span> c_trtA</span>
+<span id="cb2-28"><a href="#cb2-28" aria-hidden="true" tabindex="-1"></a>    c_S2_trtA <span class="ot">&lt;-</span> c_S2 <span class="sc">+</span> c_trtA</span>
+<span id="cb2-29"><a href="#cb2-29" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb2-30"><a href="#cb2-30" aria-hidden="true" tabindex="-1"></a>    <span class="do">## Treatment_B</span></span>
+<span id="cb2-31"><a href="#cb2-31" aria-hidden="true" tabindex="-1"></a>    <span class="co"># progression impacts</span></span>
+<span id="cb2-32"><a href="#cb2-32" aria-hidden="true" tabindex="-1"></a>    r_S1S2_trtB <span class="ot">&lt;-</span> <span class="sc">-</span><span class="fu">log</span>(<span class="dv">1</span> <span class="sc">-</span> p_S1S2) <span class="sc">*</span> hr_S1S2_trtB </span>
+<span id="cb2-33"><a href="#cb2-33" aria-hidden="true" tabindex="-1"></a>    p_S1S2_trtB <span class="ot">&lt;-</span> <span class="dv">1</span> <span class="sc">-</span> <span class="fu">exp</span>(<span class="sc">-</span>r_S1S2_trtB)</span>
+<span id="cb2-34"><a href="#cb2-34" aria-hidden="true" tabindex="-1"></a>    <span class="co"># include treatment costs</span></span>
+<span id="cb2-35"><a href="#cb2-35" aria-hidden="true" tabindex="-1"></a>    c_S1_trtB <span class="ot">&lt;-</span> c_S1 <span class="sc">+</span> c_trtB</span>
+<span id="cb2-36"><a href="#cb2-36" aria-hidden="true" tabindex="-1"></a>    c_S2_trtB <span class="ot">&lt;-</span> c_S2 <span class="sc">+</span> c_trtB</span>
+<span id="cb2-37"><a href="#cb2-37" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-38"><a href="#cb2-38" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb2-39"><a href="#cb2-39" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb2-40"><a href="#cb2-40" aria-hidden="true" tabindex="-1"></a>    <span class="do">####### INITIALIZATION #########################################</span></span>
+<span id="cb2-41"><a href="#cb2-41" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Create cost-effectiveness results data frame</span></span>
+<span id="cb2-42"><a href="#cb2-42" aria-hidden="true" tabindex="-1"></a>    df_ce <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(<span class="at">Strategy =</span> v_names_strat,</span>
+<span id="cb2-43"><a href="#cb2-43" aria-hidden="true" tabindex="-1"></a>                        <span class="at">Cost =</span> <span class="fu">numeric</span>(n_strat),</span>
+<span id="cb2-44"><a href="#cb2-44" aria-hidden="true" tabindex="-1"></a>                        <span class="at">QALY =</span> <span class="fu">numeric</span>(n_strat),</span>
+<span id="cb2-45"><a href="#cb2-45" aria-hidden="true" tabindex="-1"></a>                        <span class="at">LY =</span> <span class="fu">numeric</span>(n_strat),</span>
+<span id="cb2-46"><a href="#cb2-46" aria-hidden="true" tabindex="-1"></a>                        <span class="at">stringsAsFactors =</span> <span class="cn">FALSE</span>)</span>
+<span id="cb2-47"><a href="#cb2-47" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb2-48"><a href="#cb2-48" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb2-49"><a href="#cb2-49" aria-hidden="true" tabindex="-1"></a>    <span class="do">######### PROCESS ##############################################</span></span>
+<span id="cb2-50"><a href="#cb2-50" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> (i <span class="cf">in</span> <span class="dv">1</span><span class="sc">:</span>n_strat){</span>
+<span id="cb2-51"><a href="#cb2-51" aria-hidden="true" tabindex="-1"></a>      l_params_markov <span class="ot">&lt;-</span> <span class="fu">list</span>(<span class="at">n_cycles =</span> n_cycles, <span class="at">r_disc =</span> r_disc, <span class="at">v_s_init =</span> v_s_init,</span>
+<span id="cb2-52"><a href="#cb2-52" aria-hidden="true" tabindex="-1"></a>                              <span class="at">c_H =</span>  c_H, <span class="at">c_S1 =</span> c_S2, <span class="at">c_S2 =</span> c_S1, <span class="at">c_D =</span> c_D,</span>
+<span id="cb2-53"><a href="#cb2-53" aria-hidden="true" tabindex="-1"></a>                              <span class="at">u_H =</span>  u_H, <span class="at">u_S1 =</span> u_S2, <span class="at">u_S2 =</span> u_S1, <span class="at">u_D =</span> u_D,</span>
+<span id="cb2-54"><a href="#cb2-54" aria-hidden="true" tabindex="-1"></a>                              <span class="at">r_HD =</span> r_HD, <span class="at">hr_S1D =</span> hr_S1D, <span class="at">hr_S2D =</span> hr_S2D,</span>
+<span id="cb2-55"><a href="#cb2-55" aria-hidden="true" tabindex="-1"></a>                              <span class="at">p_HS1 =</span> p_HS1, <span class="at">p_S1H =</span> p_S1H, <span class="at">p_S1S2 =</span> p_S1S2)</span>
+<span id="cb2-56"><a href="#cb2-56" aria-hidden="true" tabindex="-1"></a>      </span>
+<span id="cb2-57"><a href="#cb2-57" aria-hidden="true" tabindex="-1"></a>      <span class="cf">if</span> (v_names_strat[i] <span class="sc">==</span> <span class="st">&quot;Treatment_A&quot;</span>){</span>
+<span id="cb2-58"><a href="#cb2-58" aria-hidden="true" tabindex="-1"></a>        l_params_markov<span class="sc">$</span>u_S1 <span class="ot">&lt;-</span> u_S1_trtA</span>
+<span id="cb2-59"><a href="#cb2-59" aria-hidden="true" tabindex="-1"></a>        l_params_markov<span class="sc">$</span>c_S1 <span class="ot">&lt;-</span> c_S1_trtA</span>
+<span id="cb2-60"><a href="#cb2-60" aria-hidden="true" tabindex="-1"></a>        l_params_markov<span class="sc">$</span>c_S2 <span class="ot">&lt;-</span> c_S2_trtA</span>
+<span id="cb2-61"><a href="#cb2-61" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb2-62"><a href="#cb2-62" aria-hidden="true" tabindex="-1"></a>      } <span class="cf">else</span> <span class="cf">if</span>(v_names_strat[i] <span class="sc">==</span> <span class="st">&quot;Treatment_B&quot;</span>){</span>
+<span id="cb2-63"><a href="#cb2-63" aria-hidden="true" tabindex="-1"></a>        l_params_markov<span class="sc">$</span>p_S1S2 <span class="ot">&lt;-</span> p_S1S2_trtB</span>
+<span id="cb2-64"><a href="#cb2-64" aria-hidden="true" tabindex="-1"></a>        l_params_markov<span class="sc">$</span>c_S1   <span class="ot">&lt;-</span> c_S1_trtB</span>
+<span id="cb2-65"><a href="#cb2-65" aria-hidden="true" tabindex="-1"></a>        l_params_markov<span class="sc">$</span>c_S2   <span class="ot">&lt;-</span> c_S2_trtB</span>
+<span id="cb2-66"><a href="#cb2-66" aria-hidden="true" tabindex="-1"></a>      }</span>
+<span id="cb2-67"><a href="#cb2-67" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-68"><a href="#cb2-68" aria-hidden="true" tabindex="-1"></a>      l_result <span class="ot">&lt;-</span> <span class="fu">run_sick_sicker_model</span>(l_params_markov)</span>
+<span id="cb2-69"><a href="#cb2-69" aria-hidden="true" tabindex="-1"></a>      </span>
+<span id="cb2-70"><a href="#cb2-70" aria-hidden="true" tabindex="-1"></a>      df_ce[i, <span class="fu">c</span>(<span class="st">&quot;Cost&quot;</span>, <span class="st">&quot;QALY&quot;</span>, <span class="st">&quot;LY&quot;</span>)] <span class="ot">&lt;-</span> <span class="fu">c</span>(l_result<span class="sc">$</span>n_tot_cost,</span>
+<span id="cb2-71"><a href="#cb2-71" aria-hidden="true" tabindex="-1"></a>                                           l_result<span class="sc">$</span>n_tot_qaly,</span>
+<span id="cb2-72"><a href="#cb2-72" aria-hidden="true" tabindex="-1"></a>                                           l_result<span class="sc">$</span>n_tot_ly)</span>
+<span id="cb2-73"><a href="#cb2-73" aria-hidden="true" tabindex="-1"></a>      df_ce[i, <span class="st">&quot;NMB&quot;</span>] <span class="ot">&lt;-</span> l_result<span class="sc">$</span>n_tot_qaly <span class="sc">*</span> wtp <span class="sc">-</span> l_result<span class="sc">$</span>n_tot_cost</span>
+<span id="cb2-74"><a href="#cb2-74" aria-hidden="true" tabindex="-1"></a>    }</span>
+<span id="cb2-75"><a href="#cb2-75" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb2-76"><a href="#cb2-76" aria-hidden="true" tabindex="-1"></a>    <span class="fu">return</span>(df_ce)</span>
+<span id="cb2-77"><a href="#cb2-77" aria-hidden="true" tabindex="-1"></a>  })</span>
+<span id="cb2-78"><a href="#cb2-78" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div>
 </div>
 <div id="generating-parameter-samples-for-a-psa" class="section level2">
 <h2>Generating Parameter Samples for a PSA</h2>
 <p>The <code>gen_psa_samp</code> function creates a <code>data.frame</code> of parameter value samples based on the underlying distributions specified by the user. Each row of the returned <code>data.frame</code> is an independently sampled set of the parameters varied in the PSA. To produce a <code>psa</code> object, the <code>run_psa</code> function will take each row of this <code>data.frame</code> and calculate the outcomes for each strategy in the user-defined model. The <code>data.frame</code> returned by <code>gen_psa_samp</code> matches the format required by the <code>parameters</code> argument of the <code>make_psa_obj</code> function.</p>
 <p><code>gen_psa_samp</code> has five arguments: <code>params</code> is a vector containing the names of each parameter to be varied in the PSA; <code>dists</code> is a vector of the same length indicating which type of distribution this parameter will be drawn from; <code>parameterization_types</code> is a vector indicating the format of how these parameter distributions are defined; <code>dists_params</code> is a list of vectors, where each element of the list contains the values necessary to define the distribution for a parameter based upon its corresponding element of <code>dists</code> and <code>parameterization_types</code>; and finally, <code>nsamp</code> is a numeric value indicating the number of PSA samples to be generated.</p>
 <p>Details about the allowable distributions, their parameterization types and the corresponding formats for <code>dists_params</code> can be found in the help documentation by typing <code>?gen_psa_samp</code> in the console. Within the example below, the first parameter in the PSA, <code>&quot;p_HS1&quot;</code>, follows a <code>&quot;beta&quot;</code> distribution, which has an <code>&quot;a, b&quot;</code> parameterization type (which stands for alpha, beta), and the two values for alpha and beta are <code>30</code> and <code>170</code>, respectively. If the user does not possess estimates for the alpha and beta parameters for the beta distribution but does have estimates for the mean and standard deviation of <code>&quot;p_HS1&quot;</code>, they also could choose to parameterize this distribution using <code>parameterization_types = &quot;mean, sd&quot;</code>. In this case, the first element of the dists_params list would need to be a numeric vector of length 2 containing the estimated mean and standard deviation for <code>&quot;p_HS1&quot;</code>. <code>dampack</code> would then use a method-of-moments estimator to calculate an alpha and beta parameter for this distribution from which the PSA sample values are drawn.</p>
-<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1"></a>my_params &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="co">#Transition probabilities</span></span>
-<span id="cb3-2"><a href="#cb3-2"></a>               <span class="st">&quot;p_HS1&quot;</span>, </span>
-<span id="cb3-3"><a href="#cb3-3"></a>               <span class="st">&quot;p_S1H&quot;</span>, </span>
-<span id="cb3-4"><a href="#cb3-4"></a>               <span class="st">&quot;p_S1S2&quot;</span>, </span>
-<span id="cb3-5"><a href="#cb3-5"></a>               <span class="co">#Hazard ratios</span></span>
-<span id="cb3-6"><a href="#cb3-6"></a>               <span class="st">&quot;hr_S1&quot;</span>, </span>
-<span id="cb3-7"><a href="#cb3-7"></a>               <span class="st">&quot;hr_S2&quot;</span>,</span>
-<span id="cb3-8"><a href="#cb3-8"></a>               <span class="st">&quot;hr_S1S2_trtB&quot;</span>,</span>
-<span id="cb3-9"><a href="#cb3-9"></a>               <span class="co">#Costs</span></span>
-<span id="cb3-10"><a href="#cb3-10"></a>               <span class="st">&quot;c_H&quot;</span>, </span>
-<span id="cb3-11"><a href="#cb3-11"></a>               <span class="st">&quot;c_S1&quot;</span>, </span>
-<span id="cb3-12"><a href="#cb3-12"></a>               <span class="st">&quot;c_S2&quot;</span>,</span>
-<span id="cb3-13"><a href="#cb3-13"></a>               <span class="st">&quot;c_trtA&quot;</span>,</span>
-<span id="cb3-14"><a href="#cb3-14"></a>               <span class="st">&quot;c_trtB&quot;</span>,</span>
-<span id="cb3-15"><a href="#cb3-15"></a>               <span class="co">#Utilities</span></span>
-<span id="cb3-16"><a href="#cb3-16"></a>               <span class="st">&quot;u_H&quot;</span>,</span>
-<span id="cb3-17"><a href="#cb3-17"></a>               <span class="st">&quot;u_S1&quot;</span>,</span>
-<span id="cb3-18"><a href="#cb3-18"></a>               <span class="st">&quot;u_S2&quot;</span>, </span>
-<span id="cb3-19"><a href="#cb3-19"></a>               <span class="st">&quot;u_TrtA&quot;</span>)</span>
-<span id="cb3-20"><a href="#cb3-20"></a></span>
-<span id="cb3-21"><a href="#cb3-21"></a>my_dists &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="co">#Transition probabilities</span></span>
-<span id="cb3-22"><a href="#cb3-22"></a>              <span class="st">&quot;beta&quot;</span>, </span>
-<span id="cb3-23"><a href="#cb3-23"></a>              <span class="st">&quot;beta&quot;</span>, </span>
-<span id="cb3-24"><a href="#cb3-24"></a>              <span class="st">&quot;beta&quot;</span>,</span>
-<span id="cb3-25"><a href="#cb3-25"></a>              <span class="co">#Hazard ratios</span></span>
-<span id="cb3-26"><a href="#cb3-26"></a>              <span class="st">&quot;log-normal&quot;</span>,</span>
-<span id="cb3-27"><a href="#cb3-27"></a>              <span class="st">&quot;log-normal&quot;</span>, </span>
-<span id="cb3-28"><a href="#cb3-28"></a>              <span class="st">&quot;log-normal&quot;</span>,</span>
-<span id="cb3-29"><a href="#cb3-29"></a>              <span class="co">#Costs</span></span>
-<span id="cb3-30"><a href="#cb3-30"></a>              <span class="st">&quot;gamma&quot;</span>, </span>
-<span id="cb3-31"><a href="#cb3-31"></a>              <span class="st">&quot;gamma&quot;</span>, </span>
-<span id="cb3-32"><a href="#cb3-32"></a>              <span class="st">&quot;gamma&quot;</span>,</span>
-<span id="cb3-33"><a href="#cb3-33"></a>              <span class="st">&quot;gamma&quot;</span>, </span>
-<span id="cb3-34"><a href="#cb3-34"></a>              <span class="st">&quot;gamma&quot;</span>, </span>
-<span id="cb3-35"><a href="#cb3-35"></a>              <span class="co">#Utilities</span></span>
-<span id="cb3-36"><a href="#cb3-36"></a>              <span class="st">&quot;truncated-normal&quot;</span>, </span>
-<span id="cb3-37"><a href="#cb3-37"></a>              <span class="st">&quot;truncated-normal&quot;</span>, </span>
-<span id="cb3-38"><a href="#cb3-38"></a>              <span class="st">&quot;truncated-normal&quot;</span>, </span>
-<span id="cb3-39"><a href="#cb3-39"></a>              <span class="st">&quot;truncated-normal&quot;</span>)</span>
-<span id="cb3-40"><a href="#cb3-40"></a></span>
-<span id="cb3-41"><a href="#cb3-41"></a>my_parameterization_types &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="co">#Transition Probabilities</span></span>
-<span id="cb3-42"><a href="#cb3-42"></a>                               <span class="st">&quot;a, b&quot;</span>, </span>
-<span id="cb3-43"><a href="#cb3-43"></a>                               <span class="st">&quot;a, b&quot;</span>, </span>
-<span id="cb3-44"><a href="#cb3-44"></a>                               <span class="st">&quot;a, b&quot;</span>,</span>
-<span id="cb3-45"><a href="#cb3-45"></a>                               <span class="co">#Hazard ratios</span></span>
-<span id="cb3-46"><a href="#cb3-46"></a>                               <span class="st">&quot;mean, sd&quot;</span>, </span>
-<span id="cb3-47"><a href="#cb3-47"></a>                               <span class="st">&quot;mean, sd&quot;</span>, </span>
-<span id="cb3-48"><a href="#cb3-48"></a>                               <span class="st">&quot;mean, sd&quot;</span>,</span>
-<span id="cb3-49"><a href="#cb3-49"></a>                               <span class="co">#Costs</span></span>
-<span id="cb3-50"><a href="#cb3-50"></a>                               <span class="st">&quot;shape, scale&quot;</span>, </span>
-<span id="cb3-51"><a href="#cb3-51"></a>                               <span class="st">&quot;shape, scale&quot;</span>, </span>
-<span id="cb3-52"><a href="#cb3-52"></a>                               <span class="st">&quot;shape, scale&quot;</span>,</span>
-<span id="cb3-53"><a href="#cb3-53"></a>                               <span class="st">&quot;shape, scale&quot;</span>,</span>
-<span id="cb3-54"><a href="#cb3-54"></a>                               <span class="st">&quot;shape, scale&quot;</span>,</span>
-<span id="cb3-55"><a href="#cb3-55"></a>                               <span class="co">#Utilities</span></span>
-<span id="cb3-56"><a href="#cb3-56"></a>                               <span class="st">&quot;mean, sd, ll, ul&quot;</span>, </span>
-<span id="cb3-57"><a href="#cb3-57"></a>                               <span class="st">&quot;mean, sd, ll, ul&quot;</span>, </span>
-<span id="cb3-58"><a href="#cb3-58"></a>                               <span class="st">&quot;mean, sd, ll, ul&quot;</span>,</span>
-<span id="cb3-59"><a href="#cb3-59"></a>                               <span class="st">&quot;mean, sd, ll, ul&quot;</span>)</span>
-<span id="cb3-60"><a href="#cb3-60"></a></span>
-<span id="cb3-61"><a href="#cb3-61"></a>my_dists_params &lt;-<span class="st"> </span><span class="kw">list</span>(<span class="co">#Transition Probabilities</span></span>
-<span id="cb3-62"><a href="#cb3-62"></a>                        <span class="kw">c</span>(<span class="fl">7.5</span>, <span class="fl">42.5</span>), </span>
-<span id="cb3-63"><a href="#cb3-63"></a>                        <span class="kw">c</span>(<span class="dv">12</span>, <span class="dv">12</span>), </span>
-<span id="cb3-64"><a href="#cb3-64"></a>                        <span class="kw">c</span>(<span class="dv">15</span>, <span class="dv">133</span>),</span>
-<span id="cb3-65"><a href="#cb3-65"></a>                        <span class="co">#Hazard ratios</span></span>
-<span id="cb3-66"><a href="#cb3-66"></a>                        <span class="kw">c</span>(<span class="dv">3</span>, <span class="fl">0.5</span>), </span>
-<span id="cb3-67"><a href="#cb3-67"></a>                        <span class="kw">c</span>(<span class="dv">10</span>, <span class="fl">0.5</span>),</span>
-<span id="cb3-68"><a href="#cb3-68"></a>                        <span class="kw">c</span>(<span class="fl">0.6</span>, <span class="fl">.01</span>),</span>
-<span id="cb3-69"><a href="#cb3-69"></a>                        <span class="co">#Costs</span></span>
-<span id="cb3-70"><a href="#cb3-70"></a>                        <span class="kw">c</span>(<span class="fl">44.5</span>, <span class="dv">45</span>), </span>
-<span id="cb3-71"><a href="#cb3-71"></a>                        <span class="kw">c</span>(<span class="dv">178</span>, <span class="fl">22.5</span>),</span>
-<span id="cb3-72"><a href="#cb3-72"></a>                        <span class="kw">c</span>(<span class="dv">900</span>, <span class="fl">16.67</span>), </span>
-<span id="cb3-73"><a href="#cb3-73"></a>                        <span class="kw">c</span>(<span class="dv">576</span>, <span class="dv">21</span>),</span>
-<span id="cb3-74"><a href="#cb3-74"></a>                        <span class="kw">c</span>(<span class="dv">676</span>, <span class="dv">19</span>),</span>
-<span id="cb3-75"><a href="#cb3-75"></a>                        <span class="co">#Utilities</span></span>
-<span id="cb3-76"><a href="#cb3-76"></a>                        <span class="kw">c</span>(<span class="dv">1</span>, <span class="fl">0.01</span>, <span class="ot">NA</span>, <span class="dv">1</span>),</span>
-<span id="cb3-77"><a href="#cb3-77"></a>                        <span class="kw">c</span>(<span class="fl">0.75</span>, <span class="fl">0.02</span>, <span class="ot">NA</span>, <span class="dv">1</span>), </span>
-<span id="cb3-78"><a href="#cb3-78"></a>                        <span class="kw">c</span>(<span class="fl">0.5</span>, <span class="fl">0.03</span>, <span class="ot">NA</span>, <span class="dv">1</span>),</span>
-<span id="cb3-79"><a href="#cb3-79"></a>                        <span class="kw">c</span>(<span class="fl">0.95</span>, <span class="fl">0.02</span>, <span class="ot">NA</span>, <span class="dv">1</span>))</span>
-<span id="cb3-80"><a href="#cb3-80"></a>                       </span>
-<span id="cb3-81"><a href="#cb3-81"></a>my_psa_params &lt;-<span class="st"> </span><span class="kw">gen_psa_samp</span>(<span class="dt">params =</span> my_params,</span>
-<span id="cb3-82"><a href="#cb3-82"></a>                              <span class="dt">dists =</span> my_dists,</span>
-<span id="cb3-83"><a href="#cb3-83"></a>                              <span class="dt">parameterization_types =</span> my_parameterization_types,</span>
-<span id="cb3-84"><a href="#cb3-84"></a>                              <span class="dt">dists_params =</span> my_dists_params,</span>
-<span id="cb3-85"><a href="#cb3-85"></a>                              <span class="dt">n =</span> <span class="dv">100</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>my_params <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="co">#Transition probabilities</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>               <span class="st">&quot;p_HS1&quot;</span>, </span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>               <span class="st">&quot;p_S1H&quot;</span>, </span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>               <span class="st">&quot;p_S1S2&quot;</span>, </span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>               <span class="co">#Hazard ratios</span></span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>               <span class="st">&quot;hr_S1&quot;</span>, </span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>               <span class="st">&quot;hr_S2&quot;</span>,</span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a>               <span class="st">&quot;hr_S1S2_trtB&quot;</span>,</span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a>               <span class="co">#Costs</span></span>
+<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a>               <span class="st">&quot;c_H&quot;</span>, </span>
+<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a>               <span class="st">&quot;c_S1&quot;</span>, </span>
+<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a>               <span class="st">&quot;c_S2&quot;</span>,</span>
+<span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a>               <span class="st">&quot;c_trtA&quot;</span>,</span>
+<span id="cb3-14"><a href="#cb3-14" aria-hidden="true" tabindex="-1"></a>               <span class="st">&quot;c_trtB&quot;</span>,</span>
+<span id="cb3-15"><a href="#cb3-15" aria-hidden="true" tabindex="-1"></a>               <span class="co">#Utilities</span></span>
+<span id="cb3-16"><a href="#cb3-16" aria-hidden="true" tabindex="-1"></a>               <span class="st">&quot;u_H&quot;</span>,</span>
+<span id="cb3-17"><a href="#cb3-17" aria-hidden="true" tabindex="-1"></a>               <span class="st">&quot;u_S1&quot;</span>,</span>
+<span id="cb3-18"><a href="#cb3-18" aria-hidden="true" tabindex="-1"></a>               <span class="st">&quot;u_S2&quot;</span>, </span>
+<span id="cb3-19"><a href="#cb3-19" aria-hidden="true" tabindex="-1"></a>               <span class="st">&quot;u_TrtA&quot;</span>)</span>
+<span id="cb3-20"><a href="#cb3-20" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-21"><a href="#cb3-21" aria-hidden="true" tabindex="-1"></a>my_dists <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="co">#Transition probabilities</span></span>
+<span id="cb3-22"><a href="#cb3-22" aria-hidden="true" tabindex="-1"></a>              <span class="st">&quot;beta&quot;</span>, </span>
+<span id="cb3-23"><a href="#cb3-23" aria-hidden="true" tabindex="-1"></a>              <span class="st">&quot;beta&quot;</span>, </span>
+<span id="cb3-24"><a href="#cb3-24" aria-hidden="true" tabindex="-1"></a>              <span class="st">&quot;beta&quot;</span>,</span>
+<span id="cb3-25"><a href="#cb3-25" aria-hidden="true" tabindex="-1"></a>              <span class="co">#Hazard ratios</span></span>
+<span id="cb3-26"><a href="#cb3-26" aria-hidden="true" tabindex="-1"></a>              <span class="st">&quot;log-normal&quot;</span>,</span>
+<span id="cb3-27"><a href="#cb3-27" aria-hidden="true" tabindex="-1"></a>              <span class="st">&quot;log-normal&quot;</span>, </span>
+<span id="cb3-28"><a href="#cb3-28" aria-hidden="true" tabindex="-1"></a>              <span class="st">&quot;log-normal&quot;</span>,</span>
+<span id="cb3-29"><a href="#cb3-29" aria-hidden="true" tabindex="-1"></a>              <span class="co">#Costs</span></span>
+<span id="cb3-30"><a href="#cb3-30" aria-hidden="true" tabindex="-1"></a>              <span class="st">&quot;gamma&quot;</span>, </span>
+<span id="cb3-31"><a href="#cb3-31" aria-hidden="true" tabindex="-1"></a>              <span class="st">&quot;gamma&quot;</span>, </span>
+<span id="cb3-32"><a href="#cb3-32" aria-hidden="true" tabindex="-1"></a>              <span class="st">&quot;gamma&quot;</span>,</span>
+<span id="cb3-33"><a href="#cb3-33" aria-hidden="true" tabindex="-1"></a>              <span class="st">&quot;gamma&quot;</span>, </span>
+<span id="cb3-34"><a href="#cb3-34" aria-hidden="true" tabindex="-1"></a>              <span class="st">&quot;gamma&quot;</span>, </span>
+<span id="cb3-35"><a href="#cb3-35" aria-hidden="true" tabindex="-1"></a>              <span class="co">#Utilities</span></span>
+<span id="cb3-36"><a href="#cb3-36" aria-hidden="true" tabindex="-1"></a>              <span class="st">&quot;truncated-normal&quot;</span>, </span>
+<span id="cb3-37"><a href="#cb3-37" aria-hidden="true" tabindex="-1"></a>              <span class="st">&quot;truncated-normal&quot;</span>, </span>
+<span id="cb3-38"><a href="#cb3-38" aria-hidden="true" tabindex="-1"></a>              <span class="st">&quot;truncated-normal&quot;</span>, </span>
+<span id="cb3-39"><a href="#cb3-39" aria-hidden="true" tabindex="-1"></a>              <span class="st">&quot;truncated-normal&quot;</span>)</span>
+<span id="cb3-40"><a href="#cb3-40" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-41"><a href="#cb3-41" aria-hidden="true" tabindex="-1"></a>my_parameterization_types <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="co">#Transition Probabilities</span></span>
+<span id="cb3-42"><a href="#cb3-42" aria-hidden="true" tabindex="-1"></a>                               <span class="st">&quot;a, b&quot;</span>, </span>
+<span id="cb3-43"><a href="#cb3-43" aria-hidden="true" tabindex="-1"></a>                               <span class="st">&quot;a, b&quot;</span>, </span>
+<span id="cb3-44"><a href="#cb3-44" aria-hidden="true" tabindex="-1"></a>                               <span class="st">&quot;a, b&quot;</span>,</span>
+<span id="cb3-45"><a href="#cb3-45" aria-hidden="true" tabindex="-1"></a>                               <span class="co">#Hazard ratios</span></span>
+<span id="cb3-46"><a href="#cb3-46" aria-hidden="true" tabindex="-1"></a>                               <span class="st">&quot;mean, sd&quot;</span>, </span>
+<span id="cb3-47"><a href="#cb3-47" aria-hidden="true" tabindex="-1"></a>                               <span class="st">&quot;mean, sd&quot;</span>, </span>
+<span id="cb3-48"><a href="#cb3-48" aria-hidden="true" tabindex="-1"></a>                               <span class="st">&quot;mean, sd&quot;</span>,</span>
+<span id="cb3-49"><a href="#cb3-49" aria-hidden="true" tabindex="-1"></a>                               <span class="co">#Costs</span></span>
+<span id="cb3-50"><a href="#cb3-50" aria-hidden="true" tabindex="-1"></a>                               <span class="st">&quot;shape, scale&quot;</span>, </span>
+<span id="cb3-51"><a href="#cb3-51" aria-hidden="true" tabindex="-1"></a>                               <span class="st">&quot;shape, scale&quot;</span>, </span>
+<span id="cb3-52"><a href="#cb3-52" aria-hidden="true" tabindex="-1"></a>                               <span class="st">&quot;shape, scale&quot;</span>,</span>
+<span id="cb3-53"><a href="#cb3-53" aria-hidden="true" tabindex="-1"></a>                               <span class="st">&quot;shape, scale&quot;</span>,</span>
+<span id="cb3-54"><a href="#cb3-54" aria-hidden="true" tabindex="-1"></a>                               <span class="st">&quot;shape, scale&quot;</span>,</span>
+<span id="cb3-55"><a href="#cb3-55" aria-hidden="true" tabindex="-1"></a>                               <span class="co">#Utilities</span></span>
+<span id="cb3-56"><a href="#cb3-56" aria-hidden="true" tabindex="-1"></a>                               <span class="st">&quot;mean, sd, ll, ul&quot;</span>, </span>
+<span id="cb3-57"><a href="#cb3-57" aria-hidden="true" tabindex="-1"></a>                               <span class="st">&quot;mean, sd, ll, ul&quot;</span>, </span>
+<span id="cb3-58"><a href="#cb3-58" aria-hidden="true" tabindex="-1"></a>                               <span class="st">&quot;mean, sd, ll, ul&quot;</span>,</span>
+<span id="cb3-59"><a href="#cb3-59" aria-hidden="true" tabindex="-1"></a>                               <span class="st">&quot;mean, sd, ll, ul&quot;</span>)</span>
+<span id="cb3-60"><a href="#cb3-60" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-61"><a href="#cb3-61" aria-hidden="true" tabindex="-1"></a>my_dists_params <span class="ot">&lt;-</span> <span class="fu">list</span>(<span class="co">#Transition Probabilities</span></span>
+<span id="cb3-62"><a href="#cb3-62" aria-hidden="true" tabindex="-1"></a>                        <span class="fu">c</span>(<span class="fl">7.5</span>, <span class="fl">42.5</span>), </span>
+<span id="cb3-63"><a href="#cb3-63" aria-hidden="true" tabindex="-1"></a>                        <span class="fu">c</span>(<span class="dv">12</span>, <span class="dv">12</span>), </span>
+<span id="cb3-64"><a href="#cb3-64" aria-hidden="true" tabindex="-1"></a>                        <span class="fu">c</span>(<span class="dv">15</span>, <span class="dv">133</span>),</span>
+<span id="cb3-65"><a href="#cb3-65" aria-hidden="true" tabindex="-1"></a>                        <span class="co">#Hazard ratios</span></span>
+<span id="cb3-66"><a href="#cb3-66" aria-hidden="true" tabindex="-1"></a>                        <span class="fu">c</span>(<span class="dv">3</span>, <span class="fl">0.5</span>), </span>
+<span id="cb3-67"><a href="#cb3-67" aria-hidden="true" tabindex="-1"></a>                        <span class="fu">c</span>(<span class="dv">10</span>, <span class="fl">0.5</span>),</span>
+<span id="cb3-68"><a href="#cb3-68" aria-hidden="true" tabindex="-1"></a>                        <span class="fu">c</span>(<span class="fl">0.6</span>, .<span class="dv">01</span>),</span>
+<span id="cb3-69"><a href="#cb3-69" aria-hidden="true" tabindex="-1"></a>                        <span class="co">#Costs</span></span>
+<span id="cb3-70"><a href="#cb3-70" aria-hidden="true" tabindex="-1"></a>                        <span class="fu">c</span>(<span class="fl">44.5</span>, <span class="dv">45</span>), </span>
+<span id="cb3-71"><a href="#cb3-71" aria-hidden="true" tabindex="-1"></a>                        <span class="fu">c</span>(<span class="dv">178</span>, <span class="fl">22.5</span>),</span>
+<span id="cb3-72"><a href="#cb3-72" aria-hidden="true" tabindex="-1"></a>                        <span class="fu">c</span>(<span class="dv">900</span>, <span class="fl">16.67</span>), </span>
+<span id="cb3-73"><a href="#cb3-73" aria-hidden="true" tabindex="-1"></a>                        <span class="fu">c</span>(<span class="dv">576</span>, <span class="dv">21</span>),</span>
+<span id="cb3-74"><a href="#cb3-74" aria-hidden="true" tabindex="-1"></a>                        <span class="fu">c</span>(<span class="dv">676</span>, <span class="dv">19</span>),</span>
+<span id="cb3-75"><a href="#cb3-75" aria-hidden="true" tabindex="-1"></a>                        <span class="co">#Utilities</span></span>
+<span id="cb3-76"><a href="#cb3-76" aria-hidden="true" tabindex="-1"></a>                        <span class="fu">c</span>(<span class="dv">1</span>, <span class="fl">0.01</span>, <span class="cn">NA</span>, <span class="dv">1</span>),</span>
+<span id="cb3-77"><a href="#cb3-77" aria-hidden="true" tabindex="-1"></a>                        <span class="fu">c</span>(<span class="fl">0.75</span>, <span class="fl">0.02</span>, <span class="cn">NA</span>, <span class="dv">1</span>), </span>
+<span id="cb3-78"><a href="#cb3-78" aria-hidden="true" tabindex="-1"></a>                        <span class="fu">c</span>(<span class="fl">0.5</span>, <span class="fl">0.03</span>, <span class="cn">NA</span>, <span class="dv">1</span>),</span>
+<span id="cb3-79"><a href="#cb3-79" aria-hidden="true" tabindex="-1"></a>                        <span class="fu">c</span>(<span class="fl">0.95</span>, <span class="fl">0.02</span>, <span class="cn">NA</span>, <span class="dv">1</span>))</span>
+<span id="cb3-80"><a href="#cb3-80" aria-hidden="true" tabindex="-1"></a>                       </span>
+<span id="cb3-81"><a href="#cb3-81" aria-hidden="true" tabindex="-1"></a>my_psa_params <span class="ot">&lt;-</span> <span class="fu">gen_psa_samp</span>(<span class="at">params =</span> my_params,</span>
+<span id="cb3-82"><a href="#cb3-82" aria-hidden="true" tabindex="-1"></a>                              <span class="at">dists =</span> my_dists,</span>
+<span id="cb3-83"><a href="#cb3-83" aria-hidden="true" tabindex="-1"></a>                              <span class="at">parameterization_types =</span> my_parameterization_types,</span>
+<span id="cb3-84"><a href="#cb3-84" aria-hidden="true" tabindex="-1"></a>                              <span class="at">dists_params =</span> my_dists_params,</span>
+<span id="cb3-85"><a href="#cb3-85" aria-hidden="true" tabindex="-1"></a>                              <span class="at">n =</span> <span class="dv">100</span>)</span></code></pre></div>
 </div>
 <div id="generating-outcomes-for-the-psa" class="section level2">
 <h2>Generating Outcomes for the PSA</h2>
 <p>The <code>run_psa</code> function is used to calculate outcomes for each strategy for every PSA sample through the user-defined decision model, <code>FUN</code>. In this example, the <code>data.frame</code> of PSA parameters generated by <code>gen_psa_samp</code> should be used as the input for the <code>psa_samp</code> argument. The combination of the parameters in the <code>psa_samp</code> and the <code>params_basecase</code> argument must define every parameter that <code>FUN</code> expects within its <code>l_params</code> input argument. Other parameters for <code>FUN</code> that are not contained within <code>l_params</code> list, like the <code>n_wtp</code> argument of <code>calculate_ce_out</code> can be passed through <code>...</code> as an additional argument in <code>run_psa</code>. If the decision model in <code>FUN</code> is computationally slow and/or the number of PSA samples is extremely large, <code>run_psa</code> could take a long time to run. Under these circumstances, it is recommended that you set the <code>progress</code> argument to <code>TRUE</code> in order to print a progress bar in the console while the function is running to monitor its progress.</p>
-<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1"></a>my_params_basecase &lt;-<span class="st"> </span><span class="kw">list</span>(<span class="dt">p_HS1 =</span> <span class="fl">0.15</span>,</span>
-<span id="cb4-2"><a href="#cb4-2"></a>                           <span class="dt">p_S1H =</span> <span class="fl">0.5</span>,</span>
-<span id="cb4-3"><a href="#cb4-3"></a>                           <span class="dt">p_S1S2 =</span> <span class="fl">0.105</span>,</span>
-<span id="cb4-4"><a href="#cb4-4"></a>                           <span class="dt">r_HD =</span> <span class="fl">0.002</span>, </span>
-<span id="cb4-5"><a href="#cb4-5"></a>                           <span class="dt">hr_S1D =</span> <span class="dv">3</span>, </span>
-<span id="cb4-6"><a href="#cb4-6"></a>                           <span class="dt">hr_S2D =</span> <span class="dv">10</span>,</span>
-<span id="cb4-7"><a href="#cb4-7"></a>                           <span class="dt">hr_S1S2_trtB =</span> <span class="fl">0.6</span>,</span>
-<span id="cb4-8"><a href="#cb4-8"></a>                           <span class="dt">c_H =</span> <span class="dv">2000</span>,</span>
-<span id="cb4-9"><a href="#cb4-9"></a>                           <span class="dt">c_S1 =</span> <span class="dv">4000</span>,</span>
-<span id="cb4-10"><a href="#cb4-10"></a>                           <span class="dt">c_S2 =</span> <span class="dv">15000</span>, </span>
-<span id="cb4-11"><a href="#cb4-11"></a>                           <span class="dt">c_D =</span> <span class="dv">0</span>,</span>
-<span id="cb4-12"><a href="#cb4-12"></a>                           <span class="dt">c_trtA =</span> <span class="dv">12000</span>,</span>
-<span id="cb4-13"><a href="#cb4-13"></a>                           <span class="dt">c_trtB =</span> <span class="dv">13000</span>,</span>
-<span id="cb4-14"><a href="#cb4-14"></a>                           <span class="dt">u_H =</span> <span class="dv">1</span>,</span>
-<span id="cb4-15"><a href="#cb4-15"></a>                           <span class="dt">u_S1 =</span> <span class="fl">0.75</span>,</span>
-<span id="cb4-16"><a href="#cb4-16"></a>                           <span class="dt">u_S2 =</span> <span class="fl">0.5</span>,</span>
-<span id="cb4-17"><a href="#cb4-17"></a>                           <span class="dt">u_D =</span> <span class="dv">0</span>,</span>
-<span id="cb4-18"><a href="#cb4-18"></a>                           <span class="dt">u_trtA =</span> <span class="fl">0.95</span>,</span>
-<span id="cb4-19"><a href="#cb4-19"></a>                           <span class="dt">n_cycles =</span> <span class="dv">75</span>,</span>
-<span id="cb4-20"><a href="#cb4-20"></a>                           <span class="dt">v_s_init =</span> <span class="kw">c</span>(<span class="dv">1</span>, <span class="dv">0</span>, <span class="dv">0</span>, <span class="dv">0</span>),</span>
-<span id="cb4-21"><a href="#cb4-21"></a>                           <span class="dt">r_disc =</span> <span class="fl">0.03</span>)</span>
-<span id="cb4-22"><a href="#cb4-22"></a></span>
-<span id="cb4-23"><a href="#cb4-23"></a>psa_output &lt;-<span class="st"> </span><span class="kw">run_psa</span>(<span class="dt">psa_samp =</span> my_psa_params,</span>
-<span id="cb4-24"><a href="#cb4-24"></a>                      <span class="dt">params_basecase =</span> my_params_basecase,</span>
-<span id="cb4-25"><a href="#cb4-25"></a>                      <span class="dt">FUN =</span> simulate_strategies,</span>
-<span id="cb4-26"><a href="#cb4-26"></a>                      <span class="dt">outcomes =</span> <span class="kw">c</span>(<span class="st">&quot;Cost&quot;</span>, <span class="st">&quot;QALY&quot;</span>, <span class="st">&quot;LY&quot;</span>, <span class="st">&quot;NMB&quot;</span>),</span>
-<span id="cb4-27"><a href="#cb4-27"></a>                      <span class="dt">strategies =</span> <span class="kw">c</span>(<span class="st">&quot;No_Treatment&quot;</span>, <span class="st">&quot;Treatment_A&quot;</span>, <span class="st">&quot;Treatment_B&quot;</span>),</span>
-<span id="cb4-28"><a href="#cb4-28"></a>                      <span class="dt">progress =</span> <span class="ot">FALSE</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>my_params_basecase <span class="ot">&lt;-</span> <span class="fu">list</span>(<span class="at">p_HS1 =</span> <span class="fl">0.15</span>,</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>                           <span class="at">p_S1H =</span> <span class="fl">0.5</span>,</span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>                           <span class="at">p_S1S2 =</span> <span class="fl">0.105</span>,</span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>                           <span class="at">r_HD =</span> <span class="fl">0.002</span>, </span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>                           <span class="at">hr_S1D =</span> <span class="dv">3</span>, </span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>                           <span class="at">hr_S2D =</span> <span class="dv">10</span>,</span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a>                           <span class="at">hr_S1S2_trtB =</span> <span class="fl">0.6</span>,</span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a>                           <span class="at">c_H =</span> <span class="dv">2000</span>,</span>
+<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a>                           <span class="at">c_S1 =</span> <span class="dv">4000</span>,</span>
+<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a>                           <span class="at">c_S2 =</span> <span class="dv">15000</span>, </span>
+<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a>                           <span class="at">c_D =</span> <span class="dv">0</span>,</span>
+<span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a>                           <span class="at">c_trtA =</span> <span class="dv">12000</span>,</span>
+<span id="cb4-13"><a href="#cb4-13" aria-hidden="true" tabindex="-1"></a>                           <span class="at">c_trtB =</span> <span class="dv">13000</span>,</span>
+<span id="cb4-14"><a href="#cb4-14" aria-hidden="true" tabindex="-1"></a>                           <span class="at">u_H =</span> <span class="dv">1</span>,</span>
+<span id="cb4-15"><a href="#cb4-15" aria-hidden="true" tabindex="-1"></a>                           <span class="at">u_S1 =</span> <span class="fl">0.75</span>,</span>
+<span id="cb4-16"><a href="#cb4-16" aria-hidden="true" tabindex="-1"></a>                           <span class="at">u_S2 =</span> <span class="fl">0.5</span>,</span>
+<span id="cb4-17"><a href="#cb4-17" aria-hidden="true" tabindex="-1"></a>                           <span class="at">u_D =</span> <span class="dv">0</span>,</span>
+<span id="cb4-18"><a href="#cb4-18" aria-hidden="true" tabindex="-1"></a>                           <span class="at">u_trtA =</span> <span class="fl">0.95</span>,</span>
+<span id="cb4-19"><a href="#cb4-19" aria-hidden="true" tabindex="-1"></a>                           <span class="at">n_cycles =</span> <span class="dv">75</span>,</span>
+<span id="cb4-20"><a href="#cb4-20" aria-hidden="true" tabindex="-1"></a>                           <span class="at">v_s_init =</span> <span class="fu">c</span>(<span class="dv">1</span>, <span class="dv">0</span>, <span class="dv">0</span>, <span class="dv">0</span>),</span>
+<span id="cb4-21"><a href="#cb4-21" aria-hidden="true" tabindex="-1"></a>                           <span class="at">r_disc =</span> <span class="fl">0.03</span>)</span>
+<span id="cb4-22"><a href="#cb4-22" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-23"><a href="#cb4-23" aria-hidden="true" tabindex="-1"></a>psa_output <span class="ot">&lt;-</span> <span class="fu">run_psa</span>(<span class="at">psa_samp =</span> my_psa_params,</span>
+<span id="cb4-24"><a href="#cb4-24" aria-hidden="true" tabindex="-1"></a>                      <span class="at">params_basecase =</span> my_params_basecase,</span>
+<span id="cb4-25"><a href="#cb4-25" aria-hidden="true" tabindex="-1"></a>                      <span class="at">FUN =</span> simulate_strategies,</span>
+<span id="cb4-26"><a href="#cb4-26" aria-hidden="true" tabindex="-1"></a>                      <span class="at">outcomes =</span> <span class="fu">c</span>(<span class="st">&quot;Cost&quot;</span>, <span class="st">&quot;QALY&quot;</span>, <span class="st">&quot;LY&quot;</span>, <span class="st">&quot;NMB&quot;</span>),</span>
+<span id="cb4-27"><a href="#cb4-27" aria-hidden="true" tabindex="-1"></a>                      <span class="at">strategies =</span> <span class="fu">c</span>(<span class="st">&quot;No_Treatment&quot;</span>, <span class="st">&quot;Treatment_A&quot;</span>, <span class="st">&quot;Treatment_B&quot;</span>),</span>
+<span id="cb4-28"><a href="#cb4-28" aria-hidden="true" tabindex="-1"></a>                      <span class="at">progress =</span> <span class="cn">FALSE</span>)</span></code></pre></div>
 </div>
 <div id="creating-a-fully-functional-psa-object" class="section level2">
 <h2>Creating a Fully-functional PSA Object</h2>
 <p><code>run_psa</code> will return a named list containing a <code>psa</code> object for each outcome specified in the <code>outcomes</code> argument. Each <code>psa</code> object in the list is compatible with <code>owsa()</code>, <code>twsa()</code>, and their associated downstream functions described in the <code>psa_analysis</code> vignette. However, most PSA analysis functions in <code>dampack</code> rely on the clear designation of both a cost and effectiveness outcome. To create a PSA object that is compatible with these functions related to cost-effectiveness you must input the results of <code>run_psa</code> into the <code>make_psa_obj</code> function in the following manner. <code>make_psa_obj()</code> requires data.frames for <code>cost</code>, <code>effect</code>, and <code>parameters</code>, and a character vector for <code>strategies</code>. The <code>data.frame</code>s containing each outcome in the list returned by <code>run_psa</code> are stored within <code>other_outcome</code>. In this example, the outcome associated with <code>effect</code> is named <code>&quot;Effect&quot;</code>, and so <code>psa_output$Effect$other_outcome</code> is supplied to the corresponding argument of <code>make_psa_obj</code>.</p>
-<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1"></a>cea_psa &lt;-<span class="st"> </span><span class="kw">make_psa_obj</span>(<span class="dt">cost =</span> psa_output<span class="op">$</span>Cost<span class="op">$</span>other_outcome, </span>
-<span id="cb5-2"><a href="#cb5-2"></a>                        <span class="dt">effect =</span> psa_output<span class="op">$</span>QALY<span class="op">$</span>other_outcome, </span>
-<span id="cb5-3"><a href="#cb5-3"></a>                        <span class="dt">parameters =</span> psa_output<span class="op">$</span>Cost<span class="op">$</span>parameters,</span>
-<span id="cb5-4"><a href="#cb5-4"></a>                        <span class="dt">strategies =</span> psa_output<span class="op">$</span>Cost<span class="op">$</span>strategies,</span>
-<span id="cb5-5"><a href="#cb5-5"></a>                        <span class="dt">currency =</span> <span class="st">&quot;$&quot;</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>cea_psa <span class="ot">&lt;-</span> <span class="fu">make_psa_obj</span>(<span class="at">cost =</span> psa_output<span class="sc">$</span>Cost<span class="sc">$</span>other_outcome, </span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>                        <span class="at">effect =</span> psa_output<span class="sc">$</span>QALY<span class="sc">$</span>other_outcome, </span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>                        <span class="at">parameters =</span> psa_output<span class="sc">$</span>Cost<span class="sc">$</span>parameters,</span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>                        <span class="at">strategies =</span> psa_output<span class="sc">$</span>Cost<span class="sc">$</span>strategies,</span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>                        <span class="at">currency =</span> <span class="st">&quot;$&quot;</span>)</span></code></pre></div>
 </div>
 </div>
 

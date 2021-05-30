@@ -12,26 +12,11 @@
 
 <meta name="author" content="Fernando Alarid-Escudero, Greg Knowlton, Eva Enns, and the DARTH Team" />
 
-<meta name="date" content="2021-03-16" />
+<meta name="date" content="2021-05-30" />
 
 <title>Deterministic Sensitivity Analysis: Generation</title>
 
-<script>// Hide empty <a> tag within highlighted CodeBlock for screen reader accessibility (see https://github.com/jgm/pandoc/issues/6352#issuecomment-626106786) -->
-// v0.0.1
-// Written by JooYoung Seo (jooyoung@psu.edu) and Atsushi Yasumoto on June 1st, 2020.
-
-document.addEventListener('DOMContentLoaded', function() {
-  const codeList = document.getElementsByClassName("sourceCode");
-  for (var i = 0; i < codeList.length; i++) {
-    var linkList = codeList[i].getElementsByTagName('a');
-    for (var j = 0; j < linkList.length; j++) {
-      if (linkList[j].innerHTML === "") {
-        linkList[j].setAttribute('aria-hidden', 'true');
-      }
-    }
-  }
-});
-</script>
+<script src="data:application/javascript;base64,Ly8gUGFuZG9jIDIuOSBhZGRzIGF0dHJpYnV0ZXMgb24gYm90aCBoZWFkZXIgYW5kIGRpdi4gV2UgcmVtb3ZlIHRoZSBmb3JtZXIgKHRvCi8vIGJlIGNvbXBhdGlibGUgd2l0aCB0aGUgYmVoYXZpb3Igb2YgUGFuZG9jIDwgMi44KS4KZG9jdW1lbnQuYWRkRXZlbnRMaXN0ZW5lcignRE9NQ29udGVudExvYWRlZCcsIGZ1bmN0aW9uKGUpIHsKICB2YXIgaHMgPSBkb2N1bWVudC5xdWVyeVNlbGVjdG9yQWxsKCJkaXYuc2VjdGlvbltjbGFzcyo9J2xldmVsJ10gPiA6Zmlyc3QtY2hpbGQiKTsKICB2YXIgaSwgaCwgYTsKICBmb3IgKGkgPSAwOyBpIDwgaHMubGVuZ3RoOyBpKyspIHsKICAgIGggPSBoc1tpXTsKICAgIGlmICghL15oWzEtNl0kL2kudGVzdChoLnRhZ05hbWUpKSBjb250aW51ZTsgIC8vIGl0IHNob3VsZCBiZSBhIGhlYWRlciBoMS1oNgogICAgYSA9IGguYXR0cmlidXRlczsKICAgIHdoaWxlIChhLmxlbmd0aCA+IDApIGgucmVtb3ZlQXR0cmlidXRlKGFbMF0ubmFtZSk7CiAgfQp9KTsK"></script>
 
 <style type="text/css">
   code{white-space: pre-wrap;}
@@ -52,19 +37,19 @@ document.addEventListener('DOMContentLoaded', function() {
   }
 </style>
 <style type="text/css" data-origin="pandoc">
-code.sourceCode > span { display: inline-block; line-height: 1.25; }
-code.sourceCode > span { color: inherit; text-decoration: inherit; }
-code.sourceCode > span:empty { height: 1.2em; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
 .sourceCode { overflow: visible; }
-code.sourceCode { white-space: pre; position: relative; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
 div.sourceCode { margin: 1em 0; }
 pre.sourceCode { margin: 0; }
 @media screen {
 div.sourceCode { overflow: auto; }
 }
 @media print {
-code.sourceCode { white-space: pre-wrap; }
-code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
 }
 pre.numberSource code
   { counter-reset: source-line 0; }
@@ -84,7 +69,7 @@ pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-le
 div.sourceCode
   {   }
 @media screen {
-code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
 }
 code span.al { color: #ff0000; font-weight: bold; } /* Alert */
 code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
@@ -142,187 +127,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 
 
 
-<style type="text/css">body {
-background-color: #fff;
-margin: 1em auto;
-max-width: 700px;
-overflow: visible;
-padding-left: 2em;
-padding-right: 2em;
-font-family: "Open Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
-font-size: 14px;
-line-height: 1.35;
-}
-#TOC {
-clear: both;
-margin: 0 0 10px 10px;
-padding: 4px;
-width: 400px;
-border: 1px solid #CCCCCC;
-border-radius: 5px;
-background-color: #f6f6f6;
-font-size: 13px;
-line-height: 1.3;
-}
-#TOC .toctitle {
-font-weight: bold;
-font-size: 15px;
-margin-left: 5px;
-}
-#TOC ul {
-padding-left: 40px;
-margin-left: -1.5em;
-margin-top: 5px;
-margin-bottom: 5px;
-}
-#TOC ul ul {
-margin-left: -2em;
-}
-#TOC li {
-line-height: 16px;
-}
-table {
-margin: 1em auto;
-border-width: 1px;
-border-color: #DDDDDD;
-border-style: outset;
-border-collapse: collapse;
-}
-table th {
-border-width: 2px;
-padding: 5px;
-border-style: inset;
-}
-table td {
-border-width: 1px;
-border-style: inset;
-line-height: 18px;
-padding: 5px 5px;
-}
-table, table th, table td {
-border-left-style: none;
-border-right-style: none;
-}
-table thead, table tr.even {
-background-color: #f7f7f7;
-}
-p {
-margin: 0.5em 0;
-}
-blockquote {
-background-color: #f6f6f6;
-padding: 0.25em 0.75em;
-}
-hr {
-border-style: solid;
-border: none;
-border-top: 1px solid #777;
-margin: 28px 0;
-}
-dl {
-margin-left: 0;
-}
-dl dd {
-margin-bottom: 13px;
-margin-left: 13px;
-}
-dl dt {
-font-weight: bold;
-}
-ul {
-margin-top: 0;
-}
-ul li {
-list-style: circle outside;
-}
-ul ul {
-margin-bottom: 0;
-}
-pre, code {
-background-color: #f7f7f7;
-border-radius: 3px;
-color: #333;
-white-space: pre-wrap; 
-}
-pre {
-border-radius: 3px;
-margin: 5px 0px 10px 0px;
-padding: 10px;
-}
-pre:not([class]) {
-background-color: #f7f7f7;
-}
-code {
-font-family: Consolas, Monaco, 'Courier New', monospace;
-font-size: 85%;
-}
-p > code, li > code {
-padding: 2px 0px;
-}
-div.figure {
-text-align: center;
-}
-img {
-background-color: #FFFFFF;
-padding: 2px;
-border: 1px solid #DDDDDD;
-border-radius: 3px;
-border: 1px solid #CCCCCC;
-margin: 0 5px;
-}
-h1 {
-margin-top: 0;
-font-size: 35px;
-line-height: 40px;
-}
-h2 {
-border-bottom: 4px solid #f7f7f7;
-padding-top: 10px;
-padding-bottom: 2px;
-font-size: 145%;
-}
-h3 {
-border-bottom: 2px solid #f7f7f7;
-padding-top: 10px;
-font-size: 120%;
-}
-h4 {
-border-bottom: 1px solid #f7f7f7;
-margin-left: 8px;
-font-size: 105%;
-}
-h5, h6 {
-border-bottom: 1px solid #ccc;
-font-size: 105%;
-}
-a {
-color: #0033dd;
-text-decoration: none;
-}
-a:hover {
-color: #6666ff; }
-a:visited {
-color: #800080; }
-a:visited:hover {
-color: #BB00BB; }
-a[href^="http:"] {
-text-decoration: underline; }
-a[href^="https:"] {
-text-decoration: underline; }
-
-code > span.kw { color: #555; font-weight: bold; } 
-code > span.dt { color: #902000; } 
-code > span.dv { color: #40a070; } 
-code > span.bn { color: #d14; } 
-code > span.fl { color: #d14; } 
-code > span.ch { color: #d14; } 
-code > span.st { color: #d14; } 
-code > span.co { color: #888888; font-style: italic; } 
-code > span.ot { color: #007020; } 
-code > span.al { color: #ff0000; font-weight: bold; } 
-code > span.fu { color: #900; font-weight: bold; } 
-code > span.er { color: #a61717; background-color: #e3d2d2; } 
-</style>
+<link rel="stylesheet" href="data:text/css,body%20%7B%0Abackground%2Dcolor%3A%20%23fff%3B%0Amargin%3A%201em%20auto%3B%0Amax%2Dwidth%3A%20700px%3B%0Aoverflow%3A%20visible%3B%0Apadding%2Dleft%3A%202em%3B%0Apadding%2Dright%3A%202em%3B%0Afont%2Dfamily%3A%20%22Open%20Sans%22%2C%20%22Helvetica%20Neue%22%2C%20Helvetica%2C%20Arial%2C%20sans%2Dserif%3B%0Afont%2Dsize%3A%2014px%3B%0Aline%2Dheight%3A%201%2E35%3B%0A%7D%0A%23TOC%20%7B%0Aclear%3A%20both%3B%0Amargin%3A%200%200%2010px%2010px%3B%0Apadding%3A%204px%3B%0Awidth%3A%20400px%3B%0Aborder%3A%201px%20solid%20%23CCCCCC%3B%0Aborder%2Dradius%3A%205px%3B%0Abackground%2Dcolor%3A%20%23f6f6f6%3B%0Afont%2Dsize%3A%2013px%3B%0Aline%2Dheight%3A%201%2E3%3B%0A%7D%0A%23TOC%20%2Etoctitle%20%7B%0Afont%2Dweight%3A%20bold%3B%0Afont%2Dsize%3A%2015px%3B%0Amargin%2Dleft%3A%205px%3B%0A%7D%0A%23TOC%20ul%20%7B%0Apadding%2Dleft%3A%2040px%3B%0Amargin%2Dleft%3A%20%2D1%2E5em%3B%0Amargin%2Dtop%3A%205px%3B%0Amargin%2Dbottom%3A%205px%3B%0A%7D%0A%23TOC%20ul%20ul%20%7B%0Amargin%2Dleft%3A%20%2D2em%3B%0A%7D%0A%23TOC%20li%20%7B%0Aline%2Dheight%3A%2016px%3B%0A%7D%0Atable%20%7B%0Amargin%3A%201em%20auto%3B%0Aborder%2Dwidth%3A%201px%3B%0Aborder%2Dcolor%3A%20%23DDDDDD%3B%0Aborder%2Dstyle%3A%20outset%3B%0Aborder%2Dcollapse%3A%20collapse%3B%0A%7D%0Atable%20th%20%7B%0Aborder%2Dwidth%3A%202px%3B%0Apadding%3A%205px%3B%0Aborder%2Dstyle%3A%20inset%3B%0A%7D%0Atable%20td%20%7B%0Aborder%2Dwidth%3A%201px%3B%0Aborder%2Dstyle%3A%20inset%3B%0Aline%2Dheight%3A%2018px%3B%0Apadding%3A%205px%205px%3B%0A%7D%0Atable%2C%20table%20th%2C%20table%20td%20%7B%0Aborder%2Dleft%2Dstyle%3A%20none%3B%0Aborder%2Dright%2Dstyle%3A%20none%3B%0A%7D%0Atable%20thead%2C%20table%20tr%2Eeven%20%7B%0Abackground%2Dcolor%3A%20%23f7f7f7%3B%0A%7D%0Ap%20%7B%0Amargin%3A%200%2E5em%200%3B%0A%7D%0Ablockquote%20%7B%0Abackground%2Dcolor%3A%20%23f6f6f6%3B%0Apadding%3A%200%2E25em%200%2E75em%3B%0A%7D%0Ahr%20%7B%0Aborder%2Dstyle%3A%20solid%3B%0Aborder%3A%20none%3B%0Aborder%2Dtop%3A%201px%20solid%20%23777%3B%0Amargin%3A%2028px%200%3B%0A%7D%0Adl%20%7B%0Amargin%2Dleft%3A%200%3B%0A%7D%0Adl%20dd%20%7B%0Amargin%2Dbottom%3A%2013px%3B%0Amargin%2Dleft%3A%2013px%3B%0A%7D%0Adl%20dt%20%7B%0Afont%2Dweight%3A%20bold%3B%0A%7D%0Aul%20%7B%0Amargin%2Dtop%3A%200%3B%0A%7D%0Aul%20li%20%7B%0Alist%2Dstyle%3A%20circle%20outside%3B%0A%7D%0Aul%20ul%20%7B%0Amargin%2Dbottom%3A%200%3B%0A%7D%0Apre%2C%20code%20%7B%0Abackground%2Dcolor%3A%20%23f7f7f7%3B%0Aborder%2Dradius%3A%203px%3B%0Acolor%3A%20%23333%3B%0Awhite%2Dspace%3A%20pre%2Dwrap%3B%20%0A%7D%0Apre%20%7B%0Aborder%2Dradius%3A%203px%3B%0Amargin%3A%205px%200px%2010px%200px%3B%0Apadding%3A%2010px%3B%0A%7D%0Apre%3Anot%28%5Bclass%5D%29%20%7B%0Abackground%2Dcolor%3A%20%23f7f7f7%3B%0A%7D%0Acode%20%7B%0Afont%2Dfamily%3A%20Consolas%2C%20Monaco%2C%20%27Courier%20New%27%2C%20monospace%3B%0Afont%2Dsize%3A%2085%25%3B%0A%7D%0Ap%20%3E%20code%2C%20li%20%3E%20code%20%7B%0Apadding%3A%202px%200px%3B%0A%7D%0Adiv%2Efigure%20%7B%0Atext%2Dalign%3A%20center%3B%0A%7D%0Aimg%20%7B%0Abackground%2Dcolor%3A%20%23FFFFFF%3B%0Apadding%3A%202px%3B%0Aborder%3A%201px%20solid%20%23DDDDDD%3B%0Aborder%2Dradius%3A%203px%3B%0Aborder%3A%201px%20solid%20%23CCCCCC%3B%0Amargin%3A%200%205px%3B%0A%7D%0Ah1%20%7B%0Amargin%2Dtop%3A%200%3B%0Afont%2Dsize%3A%2035px%3B%0Aline%2Dheight%3A%2040px%3B%0A%7D%0Ah2%20%7B%0Aborder%2Dbottom%3A%204px%20solid%20%23f7f7f7%3B%0Apadding%2Dtop%3A%2010px%3B%0Apadding%2Dbottom%3A%202px%3B%0Afont%2Dsize%3A%20145%25%3B%0A%7D%0Ah3%20%7B%0Aborder%2Dbottom%3A%202px%20solid%20%23f7f7f7%3B%0Apadding%2Dtop%3A%2010px%3B%0Afont%2Dsize%3A%20120%25%3B%0A%7D%0Ah4%20%7B%0Aborder%2Dbottom%3A%201px%20solid%20%23f7f7f7%3B%0Amargin%2Dleft%3A%208px%3B%0Afont%2Dsize%3A%20105%25%3B%0A%7D%0Ah5%2C%20h6%20%7B%0Aborder%2Dbottom%3A%201px%20solid%20%23ccc%3B%0Afont%2Dsize%3A%20105%25%3B%0A%7D%0Aa%20%7B%0Acolor%3A%20%230033dd%3B%0Atext%2Ddecoration%3A%20none%3B%0A%7D%0Aa%3Ahover%20%7B%0Acolor%3A%20%236666ff%3B%20%7D%0Aa%3Avisited%20%7B%0Acolor%3A%20%23800080%3B%20%7D%0Aa%3Avisited%3Ahover%20%7B%0Acolor%3A%20%23BB00BB%3B%20%7D%0Aa%5Bhref%5E%3D%22http%3A%22%5D%20%7B%0Atext%2Ddecoration%3A%20underline%3B%20%7D%0Aa%5Bhref%5E%3D%22https%3A%22%5D%20%7B%0Atext%2Ddecoration%3A%20underline%3B%20%7D%0A%0Acode%20%3E%20span%2Ekw%20%7B%20color%3A%20%23555%3B%20font%2Dweight%3A%20bold%3B%20%7D%20%0Acode%20%3E%20span%2Edt%20%7B%20color%3A%20%23902000%3B%20%7D%20%0Acode%20%3E%20span%2Edv%20%7B%20color%3A%20%2340a070%3B%20%7D%20%0Acode%20%3E%20span%2Ebn%20%7B%20color%3A%20%23d14%3B%20%7D%20%0Acode%20%3E%20span%2Efl%20%7B%20color%3A%20%23d14%3B%20%7D%20%0Acode%20%3E%20span%2Ech%20%7B%20color%3A%20%23d14%3B%20%7D%20%0Acode%20%3E%20span%2Est%20%7B%20color%3A%20%23d14%3B%20%7D%20%0Acode%20%3E%20span%2Eco%20%7B%20color%3A%20%23888888%3B%20font%2Dstyle%3A%20italic%3B%20%7D%20%0Acode%20%3E%20span%2Eot%20%7B%20color%3A%20%23007020%3B%20%7D%20%0Acode%20%3E%20span%2Eal%20%7B%20color%3A%20%23ff0000%3B%20font%2Dweight%3A%20bold%3B%20%7D%20%0Acode%20%3E%20span%2Efu%20%7B%20color%3A%20%23900%3B%20font%2Dweight%3A%20bold%3B%20%7D%20%0Acode%20%3E%20span%2Eer%20%7B%20color%3A%20%23a61717%3B%20background%2Dcolor%3A%20%23e3d2d2%3B%20%7D%20%0A" type="text/css" />
 
 
 
@@ -336,7 +141,7 @@ code > span.er { color: #a61717; background-color: #e3d2d2; }
 
 <h1 class="title toc-ignore">Deterministic Sensitivity Analysis: Generation</h1>
 <h4 class="author">Fernando Alarid-Escudero, Greg Knowlton, Eva Enns, and the DARTH Team</h4>
-<h4 class="date">2021-03-16</h4>
+<h4 class="date">2021-05-30</h4>
 
 
 
@@ -350,225 +155,225 @@ code > span.er { color: #a61717; background-color: #e3d2d2; }
 <p>When using a decision analytic model to compare different potential strategies, it is often helpful to construct two functions: the model function that reflects the dynamic process being modeled and a wrapper function that runs the model with parameters that are modified to reflect the impact of different strategies. The example below will illustrate this kind of set up.</p>
 <p>In this example, we consider a disease that can be represented as a four-state cohort state transition model (also known as a Markov model) with the health states “Healthy”, “Sick”, “Sicker”, and “Dead”. We aptly call this model the Sick-Sicker model. Individuals who are initially healthy are at risk of becomnig sick (transition to the “Sick” state). In the “Sick” state, individuals can either recover back to “Healthy” or progress to the worse “Sicker” health state, which has a lower utility and higher costs than the “Sick” and “Healthy” states. Once in the “Sicker” health states, individuals cannot recover. In every health state, individuals have a probability of dying, which is elevated for individuals in the “Sick” and “Sicker” states relative to the “Healthy” state. Individuals who die transition to the “Dead” state. For a deeper discusison of state transition models and more complex variations of this state transition model, see Alarid-Escudero F, Krijkamp EM, Enns EA, Yang A, Hunink MGM, Pechlivanoglou P, Jalal H. Cohort state-transition models in R: A Tutorial. arXiv:200107824v1. 2020:1-31.</p>
 <p>The Sick-Sicker model is implemented as the function <code>run_sick_sicker_model</code> below:</p>
-<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1"></a>run_sick_sicker_model &lt;-<span class="st"> </span><span class="cf">function</span>(l_params, <span class="dt">verbose =</span> <span class="ot">FALSE</span>) {</span>
-<span id="cb1-2"><a href="#cb1-2"></a>  <span class="kw">with</span>(<span class="kw">as.list</span>(l_params), {</span>
-<span id="cb1-3"><a href="#cb1-3"></a>    <span class="co"># l_params must include:</span></span>
-<span id="cb1-4"><a href="#cb1-4"></a>    <span class="co"># -- disease progression parameters (annual): r_HD, p_S1S2, hr_S1D, hr_S2D, </span></span>
-<span id="cb1-5"><a href="#cb1-5"></a>    <span class="co"># -- initial cohort distribution: v_s_init</span></span>
-<span id="cb1-6"><a href="#cb1-6"></a>    <span class="co"># -- vector of annual state utilities: v_state_utility = c(u_H, u_S1, u_S2, u_D)</span></span>
-<span id="cb1-7"><a href="#cb1-7"></a>    <span class="co"># -- vector of annual state costs: v_state_cost = c(c_H, c_S1, c_S2, c_D)</span></span>
-<span id="cb1-8"><a href="#cb1-8"></a>    <span class="co"># -- time horizon (in annual cycles): n_cyles</span></span>
-<span id="cb1-9"><a href="#cb1-9"></a>    <span class="co"># -- annual discount rate: r_disc</span></span>
-<span id="cb1-10"><a href="#cb1-10"></a>    </span>
-<span id="cb1-11"><a href="#cb1-11"></a>    <span class="co">####### SET INTERNAL PARAMETERS #########################################</span></span>
-<span id="cb1-12"><a href="#cb1-12"></a>    </span>
-<span id="cb1-13"><a href="#cb1-13"></a>    <span class="co"># state names</span></span>
-<span id="cb1-14"><a href="#cb1-14"></a>    v_names_states &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="st">&quot;H&quot;</span>, <span class="st">&quot;S1&quot;</span>, <span class="st">&quot;S2&quot;</span>, <span class="st">&quot;D&quot;</span>)</span>
-<span id="cb1-15"><a href="#cb1-15"></a>    n_states &lt;-<span class="st"> </span><span class="kw">length</span>(v_names_states)</span>
-<span id="cb1-16"><a href="#cb1-16"></a>    </span>
-<span id="cb1-17"><a href="#cb1-17"></a>    <span class="co"># vector of discount weights</span></span>
-<span id="cb1-18"><a href="#cb1-18"></a>    v_dw  &lt;-<span class="st"> </span><span class="dv">1</span> <span class="op">/</span><span class="st"> </span>((<span class="dv">1</span> <span class="op">+</span><span class="st"> </span>r_disc) <span class="op">^</span><span class="st"> </span>(<span class="dv">0</span><span class="op">:</span>n_cycles))</span>
-<span id="cb1-19"><a href="#cb1-19"></a>    </span>
-<span id="cb1-20"><a href="#cb1-20"></a>    <span class="co"># state rewards</span></span>
-<span id="cb1-21"><a href="#cb1-21"></a>    v_state_cost &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="st">&quot;H&quot;</span> =<span class="st"> </span>c_H, <span class="st">&quot;S1&quot;</span> =<span class="st"> </span>c_S1, <span class="st">&quot;S2&quot;</span> =<span class="st"> </span>c_S2, <span class="st">&quot;D&quot;</span> =<span class="st"> </span>c_D)</span>
-<span id="cb1-22"><a href="#cb1-22"></a>    v_state_utility &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="st">&quot;H&quot;</span> =<span class="st"> </span>u_H, <span class="st">&quot;S1&quot;</span> =<span class="st"> </span>u_S1, <span class="st">&quot;S2&quot;</span> =<span class="st"> </span>u_S2, <span class="st">&quot;D&quot;</span> =<span class="st"> </span>u_D)</span>
-<span id="cb1-23"><a href="#cb1-23"></a>    </span>
-<span id="cb1-24"><a href="#cb1-24"></a>    <span class="co"># transition probability values</span></span>
-<span id="cb1-25"><a href="#cb1-25"></a>    r_S1D &lt;-<span class="st"> </span>hr_S1D <span class="op">*</span><span class="st"> </span>r_HD   <span class="co"># rate of death in sick state</span></span>
-<span id="cb1-26"><a href="#cb1-26"></a>    r_S2D &lt;-<span class="st"> </span>hr_S2D <span class="op">*</span><span class="st"> </span>r_HD   <span class="co"># rate of death in sicker state</span></span>
-<span id="cb1-27"><a href="#cb1-27"></a>    p_S1D &lt;-<span class="st"> </span><span class="dv">1</span> <span class="op">-</span><span class="st"> </span><span class="kw">exp</span>(<span class="op">-</span>r_S1D) <span class="co"># probability of dying when sick</span></span>
-<span id="cb1-28"><a href="#cb1-28"></a>    p_S2D &lt;-<span class="st"> </span><span class="dv">1</span> <span class="op">-</span><span class="st"> </span><span class="kw">exp</span>(<span class="op">-</span>r_S2D) <span class="co"># probability of dying when sicker</span></span>
-<span id="cb1-29"><a href="#cb1-29"></a>    p_HD  &lt;-<span class="st"> </span><span class="dv">1</span> <span class="op">-</span><span class="st"> </span><span class="kw">exp</span>(<span class="op">-</span>r_HD)   <span class="co"># probability of dying when healthy</span></span>
-<span id="cb1-30"><a href="#cb1-30"></a>    </span>
-<span id="cb1-31"><a href="#cb1-31"></a>    <span class="co">## Initialize transition probability matrix </span></span>
-<span id="cb1-32"><a href="#cb1-32"></a>    <span class="co"># all transitions to a non-death state are assumed to be conditional on survival </span></span>
-<span id="cb1-33"><a href="#cb1-33"></a>    m_P &lt;-<span class="st"> </span><span class="kw">matrix</span>(<span class="dv">0</span>, </span>
-<span id="cb1-34"><a href="#cb1-34"></a>                  <span class="dt">nrow =</span> n_states, <span class="dt">ncol =</span> n_states, </span>
-<span id="cb1-35"><a href="#cb1-35"></a>                  <span class="dt">dimnames =</span> <span class="kw">list</span>(v_names_states, v_names_states)) <span class="co"># define row and column names</span></span>
-<span id="cb1-36"><a href="#cb1-36"></a>    <span class="co">## Fill in matrix</span></span>
-<span id="cb1-37"><a href="#cb1-37"></a>    <span class="co"># From H</span></span>
-<span id="cb1-38"><a href="#cb1-38"></a>    m_P[<span class="st">&quot;H&quot;</span>, <span class="st">&quot;H&quot;</span>]   &lt;-<span class="st"> </span>(<span class="dv">1</span> <span class="op">-</span><span class="st"> </span>p_HD) <span class="op">*</span><span class="st"> </span>(<span class="dv">1</span> <span class="op">-</span><span class="st"> </span>p_HS1)    </span>
-<span id="cb1-39"><a href="#cb1-39"></a>    m_P[<span class="st">&quot;H&quot;</span>, <span class="st">&quot;S1&quot;</span>]  &lt;-<span class="st"> </span>(<span class="dv">1</span> <span class="op">-</span><span class="st"> </span>p_HD) <span class="op">*</span><span class="st"> </span>p_HS1 </span>
-<span id="cb1-40"><a href="#cb1-40"></a>    m_P[<span class="st">&quot;H&quot;</span>, <span class="st">&quot;D&quot;</span>]   &lt;-<span class="st"> </span>p_HD</span>
-<span id="cb1-41"><a href="#cb1-41"></a>    <span class="co"># From S1</span></span>
-<span id="cb1-42"><a href="#cb1-42"></a>    m_P[<span class="st">&quot;S1&quot;</span>, <span class="st">&quot;H&quot;</span>]  &lt;-<span class="st"> </span>(<span class="dv">1</span> <span class="op">-</span><span class="st"> </span>p_S1D) <span class="op">*</span><span class="st"> </span>p_S1H</span>
-<span id="cb1-43"><a href="#cb1-43"></a>    m_P[<span class="st">&quot;S1&quot;</span>, <span class="st">&quot;S1&quot;</span>] &lt;-<span class="st"> </span>(<span class="dv">1</span> <span class="op">-</span><span class="st"> </span>p_S1D) <span class="op">*</span><span class="st"> </span>(<span class="dv">1</span> <span class="op">-</span><span class="st"> </span>(p_S1H <span class="op">+</span><span class="st"> </span>p_S1S2))</span>
-<span id="cb1-44"><a href="#cb1-44"></a>    m_P[<span class="st">&quot;S1&quot;</span>, <span class="st">&quot;S2&quot;</span>] &lt;-<span class="st"> </span>(<span class="dv">1</span> <span class="op">-</span><span class="st"> </span>p_S1D) <span class="op">*</span><span class="st"> </span>p_S1S2</span>
-<span id="cb1-45"><a href="#cb1-45"></a>    m_P[<span class="st">&quot;S1&quot;</span>, <span class="st">&quot;D&quot;</span>]  &lt;-<span class="st"> </span>p_S1D</span>
-<span id="cb1-46"><a href="#cb1-46"></a>    <span class="co"># From S2</span></span>
-<span id="cb1-47"><a href="#cb1-47"></a>    m_P[<span class="st">&quot;S2&quot;</span>, <span class="st">&quot;S2&quot;</span>] &lt;-<span class="st"> </span><span class="dv">1</span> <span class="op">-</span><span class="st"> </span>p_S2D</span>
-<span id="cb1-48"><a href="#cb1-48"></a>    m_P[<span class="st">&quot;S2&quot;</span>, <span class="st">&quot;D&quot;</span>]  &lt;-<span class="st"> </span>p_S2D</span>
-<span id="cb1-49"><a href="#cb1-49"></a>    <span class="co"># From D</span></span>
-<span id="cb1-50"><a href="#cb1-50"></a>    m_P[<span class="st">&quot;D&quot;</span>, <span class="st">&quot;D&quot;</span>]   &lt;-<span class="st"> </span><span class="dv">1</span></span>
-<span id="cb1-51"><a href="#cb1-51"></a>    </span>
-<span id="cb1-52"><a href="#cb1-52"></a>    <span class="co"># check that all transition matrix entries are between 0 and 1 </span></span>
-<span id="cb1-53"><a href="#cb1-53"></a>    <span class="cf">if</span>(<span class="op">!</span><span class="kw">all</span>(m_P <span class="op">&lt;=</span><span class="st"> </span><span class="dv">1</span> <span class="op">&amp;</span><span class="st"> </span>m_P <span class="op">&gt;=</span><span class="st"> </span><span class="dv">0</span>)){</span>
-<span id="cb1-54"><a href="#cb1-54"></a>      <span class="kw">stop</span>(<span class="st">&quot;This is not a valid transition matrix (entries are not between 0 and 1&quot;</span>)</span>
-<span id="cb1-55"><a href="#cb1-55"></a>    } <span class="cf">else</span></span>
-<span id="cb1-56"><a href="#cb1-56"></a>      <span class="co"># check transition matrix rows add up to 1</span></span>
-<span id="cb1-57"><a href="#cb1-57"></a>      <span class="cf">if</span> (<span class="op">!</span><span class="kw">all.equal</span>(<span class="kw">as.numeric</span>(<span class="kw">rowSums</span>(m_P)),<span class="kw">rep</span>(<span class="dv">1</span>,n_states))){</span>
-<span id="cb1-58"><a href="#cb1-58"></a>        <span class="kw">stop</span>(<span class="st">&quot;This is not a valid transition matrix (rows do not sum to 1)&quot;</span>)</span>
-<span id="cb1-59"><a href="#cb1-59"></a>      }</span>
-<span id="cb1-60"><a href="#cb1-60"></a>    </span>
-<span id="cb1-61"><a href="#cb1-61"></a>    <span class="co">####### INITIALIZATION #########################################</span></span>
-<span id="cb1-62"><a href="#cb1-62"></a>    <span class="co"># create the cohort trace</span></span>
-<span id="cb1-63"><a href="#cb1-63"></a>    m_Trace &lt;-<span class="st"> </span><span class="kw">matrix</span>(<span class="ot">NA</span>, <span class="dt">nrow =</span> n_cycles <span class="op">+</span><span class="st"> </span><span class="dv">1</span> , </span>
-<span id="cb1-64"><a href="#cb1-64"></a>                  <span class="dt">ncol =</span> n_states,</span>
-<span id="cb1-65"><a href="#cb1-65"></a>                  <span class="dt">dimnames =</span> <span class="kw">list</span>(<span class="dv">0</span><span class="op">:</span>n_cycles, v_names_states)) <span class="co"># create Markov trace</span></span>
-<span id="cb1-66"><a href="#cb1-66"></a>    </span>
-<span id="cb1-67"><a href="#cb1-67"></a>    <span class="co"># create vectors of costs and QALYs</span></span>
-<span id="cb1-68"><a href="#cb1-68"></a>    v_C &lt;-<span class="st"> </span>v_Q &lt;-<span class="st"> </span><span class="kw">numeric</span>(<span class="dt">length =</span> n_cycles <span class="op">+</span><span class="st"> </span><span class="dv">1</span>)</span>
-<span id="cb1-69"><a href="#cb1-69"></a>    </span>
-<span id="cb1-70"><a href="#cb1-70"></a>    <span class="co">############# PROCESS ###########################################</span></span>
-<span id="cb1-71"><a href="#cb1-71"></a>    </span>
-<span id="cb1-72"><a href="#cb1-72"></a>    m_Trace[<span class="dv">1</span>, ] &lt;-<span class="st"> </span>v_s_init <span class="co"># initialize Markov trace</span></span>
-<span id="cb1-73"><a href="#cb1-73"></a>    v_C[<span class="dv">1</span>] &lt;-<span class="st"> </span><span class="dv">0</span> <span class="co"># no upfront costs</span></span>
-<span id="cb1-74"><a href="#cb1-74"></a>    v_Q[<span class="dv">1</span>] &lt;-<span class="st"> </span><span class="dv">0</span> <span class="co"># no upfront QALYs</span></span>
-<span id="cb1-75"><a href="#cb1-75"></a>    </span>
-<span id="cb1-76"><a href="#cb1-76"></a>    <span class="cf">for</span> (t <span class="cf">in</span> <span class="dv">1</span><span class="op">:</span>n_cycles){ <span class="co"># throughout the number of cycles</span></span>
-<span id="cb1-77"><a href="#cb1-77"></a>      m_Trace[t <span class="op">+</span><span class="st"> </span><span class="dv">1</span>, ] &lt;-<span class="st"> </span>m_Trace[t, ] <span class="op">%*%</span><span class="st"> </span>m_P <span class="co"># calculate trace for cycle (t + 1) based on cycle t</span></span>
-<span id="cb1-78"><a href="#cb1-78"></a>      </span>
-<span id="cb1-79"><a href="#cb1-79"></a>      v_C[t <span class="op">+</span><span class="st"> </span><span class="dv">1</span>] &lt;-<span class="st"> </span>m_Trace[t <span class="op">+</span><span class="st"> </span><span class="dv">1</span>, ] <span class="op">%*%</span><span class="st"> </span>v_state_cost</span>
-<span id="cb1-80"><a href="#cb1-80"></a>      </span>
-<span id="cb1-81"><a href="#cb1-81"></a>      v_Q[t <span class="op">+</span><span class="st"> </span><span class="dv">1</span>] &lt;-<span class="st"> </span>m_Trace[t <span class="op">+</span><span class="st"> </span><span class="dv">1</span>, ] <span class="op">%*%</span><span class="st"> </span>v_state_utility</span>
-<span id="cb1-82"><a href="#cb1-82"></a>      </span>
-<span id="cb1-83"><a href="#cb1-83"></a>    }</span>
-<span id="cb1-84"><a href="#cb1-84"></a>    </span>
-<span id="cb1-85"><a href="#cb1-85"></a>    <span class="co">#############  PRIMARY ECONOMIC OUTPUTS  #########################</span></span>
-<span id="cb1-86"><a href="#cb1-86"></a>    </span>
-<span id="cb1-87"><a href="#cb1-87"></a>    <span class="co"># Total discounted costs</span></span>
-<span id="cb1-88"><a href="#cb1-88"></a>    n_tot_cost &lt;-<span class="st"> </span><span class="kw">t</span>(v_C) <span class="op">%*%</span><span class="st"> </span>v_dw</span>
-<span id="cb1-89"><a href="#cb1-89"></a>    </span>
-<span id="cb1-90"><a href="#cb1-90"></a>    <span class="co"># Total discounted QALYs</span></span>
-<span id="cb1-91"><a href="#cb1-91"></a>    n_tot_qaly &lt;-<span class="st"> </span><span class="kw">t</span>(v_Q) <span class="op">%*%</span><span class="st"> </span>v_dw</span>
-<span id="cb1-92"><a href="#cb1-92"></a>    </span>
-<span id="cb1-93"><a href="#cb1-93"></a>    <span class="co">#############  OTHER OUTPUTS   ###################################</span></span>
-<span id="cb1-94"><a href="#cb1-94"></a>    </span>
-<span id="cb1-95"><a href="#cb1-95"></a>    <span class="co"># Total discounted life-years (sometimes used instead of QALYs)</span></span>
-<span id="cb1-96"><a href="#cb1-96"></a>    n_tot_ly &lt;-<span class="st"> </span><span class="kw">t</span>(m_Trace <span class="op">%*%</span><span class="st"> </span><span class="kw">c</span>(<span class="dv">1</span>, <span class="dv">1</span>, <span class="dv">1</span>, <span class="dv">0</span>)) <span class="op">%*%</span><span class="st"> </span>v_dw</span>
-<span id="cb1-97"><a href="#cb1-97"></a>    </span>
-<span id="cb1-98"><a href="#cb1-98"></a>    <span class="co">####### RETURN OUTPUT  ###########################################</span></span>
-<span id="cb1-99"><a href="#cb1-99"></a>    out &lt;-<span class="st"> </span><span class="kw">list</span>(<span class="dt">m_Trace =</span> m_Trace,</span>
-<span id="cb1-100"><a href="#cb1-100"></a>                <span class="dt">m_P =</span> m_P,</span>
-<span id="cb1-101"><a href="#cb1-101"></a>                l_params,</span>
-<span id="cb1-102"><a href="#cb1-102"></a>                <span class="dt">n_tot_cost =</span> n_tot_cost,</span>
-<span id="cb1-103"><a href="#cb1-103"></a>                <span class="dt">n_tot_qaly =</span> n_tot_qaly,</span>
-<span id="cb1-104"><a href="#cb1-104"></a>                <span class="dt">n_tot_ly =</span> n_tot_ly)</span>
-<span id="cb1-105"><a href="#cb1-105"></a>    </span>
-<span id="cb1-106"><a href="#cb1-106"></a>    <span class="kw">return</span>(out)</span>
-<span id="cb1-107"><a href="#cb1-107"></a>  }</span>
-<span id="cb1-108"><a href="#cb1-108"></a>  )</span>
-<span id="cb1-109"><a href="#cb1-109"></a>}</span></code></pre></div>
+<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>run_sick_sicker_model <span class="ot">&lt;-</span> <span class="cf">function</span>(l_params, <span class="at">verbose =</span> <span class="cn">FALSE</span>) {</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">with</span>(<span class="fu">as.list</span>(l_params), {</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>    <span class="co"># l_params must include:</span></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>    <span class="co"># -- disease progression parameters (annual): r_HD, p_S1S2, hr_S1D, hr_S2D, </span></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>    <span class="co"># -- initial cohort distribution: v_s_init</span></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>    <span class="co"># -- vector of annual state utilities: v_state_utility = c(u_H, u_S1, u_S2, u_D)</span></span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>    <span class="co"># -- vector of annual state costs: v_state_cost = c(c_H, c_S1, c_S2, c_D)</span></span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>    <span class="co"># -- time horizon (in annual cycles): n_cyles</span></span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>    <span class="co"># -- annual discount rate: r_disc</span></span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>    <span class="do">####### SET INTERNAL PARAMETERS #########################################</span></span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>    <span class="co"># state names</span></span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a>    v_names_states <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">&quot;H&quot;</span>, <span class="st">&quot;S1&quot;</span>, <span class="st">&quot;S2&quot;</span>, <span class="st">&quot;D&quot;</span>)</span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a>    n_states <span class="ot">&lt;-</span> <span class="fu">length</span>(v_names_states)</span>
+<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a>    <span class="co"># vector of discount weights</span></span>
+<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a>    v_dw  <span class="ot">&lt;-</span> <span class="dv">1</span> <span class="sc">/</span> ((<span class="dv">1</span> <span class="sc">+</span> r_disc) <span class="sc">^</span> (<span class="dv">0</span><span class="sc">:</span>n_cycles))</span>
+<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a>    <span class="co"># state rewards</span></span>
+<span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a>    v_state_cost <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">&quot;H&quot;</span> <span class="ot">=</span> c_H, <span class="st">&quot;S1&quot;</span> <span class="ot">=</span> c_S1, <span class="st">&quot;S2&quot;</span> <span class="ot">=</span> c_S2, <span class="st">&quot;D&quot;</span> <span class="ot">=</span> c_D)</span>
+<span id="cb1-22"><a href="#cb1-22" aria-hidden="true" tabindex="-1"></a>    v_state_utility <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">&quot;H&quot;</span> <span class="ot">=</span> u_H, <span class="st">&quot;S1&quot;</span> <span class="ot">=</span> u_S1, <span class="st">&quot;S2&quot;</span> <span class="ot">=</span> u_S2, <span class="st">&quot;D&quot;</span> <span class="ot">=</span> u_D)</span>
+<span id="cb1-23"><a href="#cb1-23" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb1-24"><a href="#cb1-24" aria-hidden="true" tabindex="-1"></a>    <span class="co"># transition probability values</span></span>
+<span id="cb1-25"><a href="#cb1-25" aria-hidden="true" tabindex="-1"></a>    r_S1D <span class="ot">&lt;-</span> hr_S1D <span class="sc">*</span> r_HD   <span class="co"># rate of death in sick state</span></span>
+<span id="cb1-26"><a href="#cb1-26" aria-hidden="true" tabindex="-1"></a>    r_S2D <span class="ot">&lt;-</span> hr_S2D <span class="sc">*</span> r_HD   <span class="co"># rate of death in sicker state</span></span>
+<span id="cb1-27"><a href="#cb1-27" aria-hidden="true" tabindex="-1"></a>    p_S1D <span class="ot">&lt;-</span> <span class="dv">1</span> <span class="sc">-</span> <span class="fu">exp</span>(<span class="sc">-</span>r_S1D) <span class="co"># probability of dying when sick</span></span>
+<span id="cb1-28"><a href="#cb1-28" aria-hidden="true" tabindex="-1"></a>    p_S2D <span class="ot">&lt;-</span> <span class="dv">1</span> <span class="sc">-</span> <span class="fu">exp</span>(<span class="sc">-</span>r_S2D) <span class="co"># probability of dying when sicker</span></span>
+<span id="cb1-29"><a href="#cb1-29" aria-hidden="true" tabindex="-1"></a>    p_HD  <span class="ot">&lt;-</span> <span class="dv">1</span> <span class="sc">-</span> <span class="fu">exp</span>(<span class="sc">-</span>r_HD)   <span class="co"># probability of dying when healthy</span></span>
+<span id="cb1-30"><a href="#cb1-30" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb1-31"><a href="#cb1-31" aria-hidden="true" tabindex="-1"></a>    <span class="do">## Initialize transition probability matrix </span></span>
+<span id="cb1-32"><a href="#cb1-32" aria-hidden="true" tabindex="-1"></a>    <span class="co"># all transitions to a non-death state are assumed to be conditional on survival </span></span>
+<span id="cb1-33"><a href="#cb1-33" aria-hidden="true" tabindex="-1"></a>    m_P <span class="ot">&lt;-</span> <span class="fu">matrix</span>(<span class="dv">0</span>, </span>
+<span id="cb1-34"><a href="#cb1-34" aria-hidden="true" tabindex="-1"></a>                  <span class="at">nrow =</span> n_states, <span class="at">ncol =</span> n_states, </span>
+<span id="cb1-35"><a href="#cb1-35" aria-hidden="true" tabindex="-1"></a>                  <span class="at">dimnames =</span> <span class="fu">list</span>(v_names_states, v_names_states)) <span class="co"># define row and column names</span></span>
+<span id="cb1-36"><a href="#cb1-36" aria-hidden="true" tabindex="-1"></a>    <span class="do">## Fill in matrix</span></span>
+<span id="cb1-37"><a href="#cb1-37" aria-hidden="true" tabindex="-1"></a>    <span class="co"># From H</span></span>
+<span id="cb1-38"><a href="#cb1-38" aria-hidden="true" tabindex="-1"></a>    m_P[<span class="st">&quot;H&quot;</span>, <span class="st">&quot;H&quot;</span>]   <span class="ot">&lt;-</span> (<span class="dv">1</span> <span class="sc">-</span> p_HD) <span class="sc">*</span> (<span class="dv">1</span> <span class="sc">-</span> p_HS1)    </span>
+<span id="cb1-39"><a href="#cb1-39" aria-hidden="true" tabindex="-1"></a>    m_P[<span class="st">&quot;H&quot;</span>, <span class="st">&quot;S1&quot;</span>]  <span class="ot">&lt;-</span> (<span class="dv">1</span> <span class="sc">-</span> p_HD) <span class="sc">*</span> p_HS1 </span>
+<span id="cb1-40"><a href="#cb1-40" aria-hidden="true" tabindex="-1"></a>    m_P[<span class="st">&quot;H&quot;</span>, <span class="st">&quot;D&quot;</span>]   <span class="ot">&lt;-</span> p_HD</span>
+<span id="cb1-41"><a href="#cb1-41" aria-hidden="true" tabindex="-1"></a>    <span class="co"># From S1</span></span>
+<span id="cb1-42"><a href="#cb1-42" aria-hidden="true" tabindex="-1"></a>    m_P[<span class="st">&quot;S1&quot;</span>, <span class="st">&quot;H&quot;</span>]  <span class="ot">&lt;-</span> (<span class="dv">1</span> <span class="sc">-</span> p_S1D) <span class="sc">*</span> p_S1H</span>
+<span id="cb1-43"><a href="#cb1-43" aria-hidden="true" tabindex="-1"></a>    m_P[<span class="st">&quot;S1&quot;</span>, <span class="st">&quot;S1&quot;</span>] <span class="ot">&lt;-</span> (<span class="dv">1</span> <span class="sc">-</span> p_S1D) <span class="sc">*</span> (<span class="dv">1</span> <span class="sc">-</span> (p_S1H <span class="sc">+</span> p_S1S2))</span>
+<span id="cb1-44"><a href="#cb1-44" aria-hidden="true" tabindex="-1"></a>    m_P[<span class="st">&quot;S1&quot;</span>, <span class="st">&quot;S2&quot;</span>] <span class="ot">&lt;-</span> (<span class="dv">1</span> <span class="sc">-</span> p_S1D) <span class="sc">*</span> p_S1S2</span>
+<span id="cb1-45"><a href="#cb1-45" aria-hidden="true" tabindex="-1"></a>    m_P[<span class="st">&quot;S1&quot;</span>, <span class="st">&quot;D&quot;</span>]  <span class="ot">&lt;-</span> p_S1D</span>
+<span id="cb1-46"><a href="#cb1-46" aria-hidden="true" tabindex="-1"></a>    <span class="co"># From S2</span></span>
+<span id="cb1-47"><a href="#cb1-47" aria-hidden="true" tabindex="-1"></a>    m_P[<span class="st">&quot;S2&quot;</span>, <span class="st">&quot;S2&quot;</span>] <span class="ot">&lt;-</span> <span class="dv">1</span> <span class="sc">-</span> p_S2D</span>
+<span id="cb1-48"><a href="#cb1-48" aria-hidden="true" tabindex="-1"></a>    m_P[<span class="st">&quot;S2&quot;</span>, <span class="st">&quot;D&quot;</span>]  <span class="ot">&lt;-</span> p_S2D</span>
+<span id="cb1-49"><a href="#cb1-49" aria-hidden="true" tabindex="-1"></a>    <span class="co"># From D</span></span>
+<span id="cb1-50"><a href="#cb1-50" aria-hidden="true" tabindex="-1"></a>    m_P[<span class="st">&quot;D&quot;</span>, <span class="st">&quot;D&quot;</span>]   <span class="ot">&lt;-</span> <span class="dv">1</span></span>
+<span id="cb1-51"><a href="#cb1-51" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb1-52"><a href="#cb1-52" aria-hidden="true" tabindex="-1"></a>    <span class="co"># check that all transition matrix entries are between 0 and 1 </span></span>
+<span id="cb1-53"><a href="#cb1-53" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span>(<span class="sc">!</span><span class="fu">all</span>(m_P <span class="sc">&lt;=</span> <span class="dv">1</span> <span class="sc">&amp;</span> m_P <span class="sc">&gt;=</span> <span class="dv">0</span>)){</span>
+<span id="cb1-54"><a href="#cb1-54" aria-hidden="true" tabindex="-1"></a>      <span class="fu">stop</span>(<span class="st">&quot;This is not a valid transition matrix (entries are not between 0 and 1&quot;</span>)</span>
+<span id="cb1-55"><a href="#cb1-55" aria-hidden="true" tabindex="-1"></a>    } <span class="cf">else</span></span>
+<span id="cb1-56"><a href="#cb1-56" aria-hidden="true" tabindex="-1"></a>      <span class="co"># check transition matrix rows add up to 1</span></span>
+<span id="cb1-57"><a href="#cb1-57" aria-hidden="true" tabindex="-1"></a>      <span class="cf">if</span> (<span class="sc">!</span><span class="fu">all.equal</span>(<span class="fu">as.numeric</span>(<span class="fu">rowSums</span>(m_P)),<span class="fu">rep</span>(<span class="dv">1</span>,n_states))){</span>
+<span id="cb1-58"><a href="#cb1-58" aria-hidden="true" tabindex="-1"></a>        <span class="fu">stop</span>(<span class="st">&quot;This is not a valid transition matrix (rows do not sum to 1)&quot;</span>)</span>
+<span id="cb1-59"><a href="#cb1-59" aria-hidden="true" tabindex="-1"></a>      }</span>
+<span id="cb1-60"><a href="#cb1-60" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb1-61"><a href="#cb1-61" aria-hidden="true" tabindex="-1"></a>    <span class="do">####### INITIALIZATION #########################################</span></span>
+<span id="cb1-62"><a href="#cb1-62" aria-hidden="true" tabindex="-1"></a>    <span class="co"># create the cohort trace</span></span>
+<span id="cb1-63"><a href="#cb1-63" aria-hidden="true" tabindex="-1"></a>    m_Trace <span class="ot">&lt;-</span> <span class="fu">matrix</span>(<span class="cn">NA</span>, <span class="at">nrow =</span> n_cycles <span class="sc">+</span> <span class="dv">1</span> , </span>
+<span id="cb1-64"><a href="#cb1-64" aria-hidden="true" tabindex="-1"></a>                  <span class="at">ncol =</span> n_states,</span>
+<span id="cb1-65"><a href="#cb1-65" aria-hidden="true" tabindex="-1"></a>                  <span class="at">dimnames =</span> <span class="fu">list</span>(<span class="dv">0</span><span class="sc">:</span>n_cycles, v_names_states)) <span class="co"># create Markov trace</span></span>
+<span id="cb1-66"><a href="#cb1-66" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb1-67"><a href="#cb1-67" aria-hidden="true" tabindex="-1"></a>    <span class="co"># create vectors of costs and QALYs</span></span>
+<span id="cb1-68"><a href="#cb1-68" aria-hidden="true" tabindex="-1"></a>    v_C <span class="ot">&lt;-</span> v_Q <span class="ot">&lt;-</span> <span class="fu">numeric</span>(<span class="at">length =</span> n_cycles <span class="sc">+</span> <span class="dv">1</span>)</span>
+<span id="cb1-69"><a href="#cb1-69" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb1-70"><a href="#cb1-70" aria-hidden="true" tabindex="-1"></a>    <span class="do">############# PROCESS ###########################################</span></span>
+<span id="cb1-71"><a href="#cb1-71" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb1-72"><a href="#cb1-72" aria-hidden="true" tabindex="-1"></a>    m_Trace[<span class="dv">1</span>, ] <span class="ot">&lt;-</span> v_s_init <span class="co"># initialize Markov trace</span></span>
+<span id="cb1-73"><a href="#cb1-73" aria-hidden="true" tabindex="-1"></a>    v_C[<span class="dv">1</span>] <span class="ot">&lt;-</span> <span class="dv">0</span> <span class="co"># no upfront costs</span></span>
+<span id="cb1-74"><a href="#cb1-74" aria-hidden="true" tabindex="-1"></a>    v_Q[<span class="dv">1</span>] <span class="ot">&lt;-</span> <span class="dv">0</span> <span class="co"># no upfront QALYs</span></span>
+<span id="cb1-75"><a href="#cb1-75" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb1-76"><a href="#cb1-76" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> (t <span class="cf">in</span> <span class="dv">1</span><span class="sc">:</span>n_cycles){ <span class="co"># throughout the number of cycles</span></span>
+<span id="cb1-77"><a href="#cb1-77" aria-hidden="true" tabindex="-1"></a>      m_Trace[t <span class="sc">+</span> <span class="dv">1</span>, ] <span class="ot">&lt;-</span> m_Trace[t, ] <span class="sc">%*%</span> m_P <span class="co"># calculate trace for cycle (t + 1) based on cycle t</span></span>
+<span id="cb1-78"><a href="#cb1-78" aria-hidden="true" tabindex="-1"></a>      </span>
+<span id="cb1-79"><a href="#cb1-79" aria-hidden="true" tabindex="-1"></a>      v_C[t <span class="sc">+</span> <span class="dv">1</span>] <span class="ot">&lt;-</span> m_Trace[t <span class="sc">+</span> <span class="dv">1</span>, ] <span class="sc">%*%</span> v_state_cost</span>
+<span id="cb1-80"><a href="#cb1-80" aria-hidden="true" tabindex="-1"></a>      </span>
+<span id="cb1-81"><a href="#cb1-81" aria-hidden="true" tabindex="-1"></a>      v_Q[t <span class="sc">+</span> <span class="dv">1</span>] <span class="ot">&lt;-</span> m_Trace[t <span class="sc">+</span> <span class="dv">1</span>, ] <span class="sc">%*%</span> v_state_utility</span>
+<span id="cb1-82"><a href="#cb1-82" aria-hidden="true" tabindex="-1"></a>      </span>
+<span id="cb1-83"><a href="#cb1-83" aria-hidden="true" tabindex="-1"></a>    }</span>
+<span id="cb1-84"><a href="#cb1-84" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb1-85"><a href="#cb1-85" aria-hidden="true" tabindex="-1"></a>    <span class="do">#############  PRIMARY ECONOMIC OUTPUTS  #########################</span></span>
+<span id="cb1-86"><a href="#cb1-86" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb1-87"><a href="#cb1-87" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Total discounted costs</span></span>
+<span id="cb1-88"><a href="#cb1-88" aria-hidden="true" tabindex="-1"></a>    n_tot_cost <span class="ot">&lt;-</span> <span class="fu">t</span>(v_C) <span class="sc">%*%</span> v_dw</span>
+<span id="cb1-89"><a href="#cb1-89" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb1-90"><a href="#cb1-90" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Total discounted QALYs</span></span>
+<span id="cb1-91"><a href="#cb1-91" aria-hidden="true" tabindex="-1"></a>    n_tot_qaly <span class="ot">&lt;-</span> <span class="fu">t</span>(v_Q) <span class="sc">%*%</span> v_dw</span>
+<span id="cb1-92"><a href="#cb1-92" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb1-93"><a href="#cb1-93" aria-hidden="true" tabindex="-1"></a>    <span class="do">#############  OTHER OUTPUTS   ###################################</span></span>
+<span id="cb1-94"><a href="#cb1-94" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb1-95"><a href="#cb1-95" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Total discounted life-years (sometimes used instead of QALYs)</span></span>
+<span id="cb1-96"><a href="#cb1-96" aria-hidden="true" tabindex="-1"></a>    n_tot_ly <span class="ot">&lt;-</span> <span class="fu">t</span>(m_Trace <span class="sc">%*%</span> <span class="fu">c</span>(<span class="dv">1</span>, <span class="dv">1</span>, <span class="dv">1</span>, <span class="dv">0</span>)) <span class="sc">%*%</span> v_dw</span>
+<span id="cb1-97"><a href="#cb1-97" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb1-98"><a href="#cb1-98" aria-hidden="true" tabindex="-1"></a>    <span class="do">####### RETURN OUTPUT  ###########################################</span></span>
+<span id="cb1-99"><a href="#cb1-99" aria-hidden="true" tabindex="-1"></a>    out <span class="ot">&lt;-</span> <span class="fu">list</span>(<span class="at">m_Trace =</span> m_Trace,</span>
+<span id="cb1-100"><a href="#cb1-100" aria-hidden="true" tabindex="-1"></a>                <span class="at">m_P =</span> m_P,</span>
+<span id="cb1-101"><a href="#cb1-101" aria-hidden="true" tabindex="-1"></a>                l_params,</span>
+<span id="cb1-102"><a href="#cb1-102" aria-hidden="true" tabindex="-1"></a>                <span class="at">n_tot_cost =</span> n_tot_cost,</span>
+<span id="cb1-103"><a href="#cb1-103" aria-hidden="true" tabindex="-1"></a>                <span class="at">n_tot_qaly =</span> n_tot_qaly,</span>
+<span id="cb1-104"><a href="#cb1-104" aria-hidden="true" tabindex="-1"></a>                <span class="at">n_tot_ly =</span> n_tot_ly)</span>
+<span id="cb1-105"><a href="#cb1-105" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb1-106"><a href="#cb1-106" aria-hidden="true" tabindex="-1"></a>    <span class="fu">return</span>(out)</span>
+<span id="cb1-107"><a href="#cb1-107" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb1-108"><a href="#cb1-108" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb1-109"><a href="#cb1-109" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div>
 <p>Note that this function outputs costs, QALYs, and LYs for a given set of inputs (passed as the list <code>l_params</code>). Different strategies can be modeled by calling <code>run_sick_sicker_model</code> with different parameter values reflect the impacts of those strategies. In this example, we will use the Sick-Sicker model to evaluate three strateges: “No_Treatment”, “Treatment_A”, and “Treatment_B”. The “No_Treatment” strategy is just the Sick-Sicker natural history, while both “Treatment_A” and “Treatment_B” improve some aspect of the disease. These treatments are taken whenever someone is ill (Sick or Sicker), which increases the cost of being in those states by the cost of treatment.“Treatment_A” improves the utility for those in the Sick states (but not in the Sicker state), while “Treatment_B” reduces the rate of progressing from the Sick state to the Sicker state. Note that we assume that treatment cannot be targeted to just the Sick state because we assume that for this disease it is difficult to differentiate between patients in the Sick and Sicker states. Thus treatment costs are incurred by those in the Sicker state even if they do not benefit from it.</p>
 <p>We define a second function, <code>simulate_strategies</code> that calls the Sick-Sicker model with the approrpiate inputs values for these three strategies. The <code>simulate_strategies</code> function also takes a list of parameter values (<code>l_params</code>), which must include both parameters for the markov model and any parameters governing the three strategies to be evaluated. <code>simulate_strategies</code> outputs a data frame with costs, QALYs, life-years (LYs), and net monetary benefit (NMB) for each of the three strategies. It is this function that we will pass to <code>dampack</code>’s internal functions for conducting DSA.</p>
-<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1"></a>simulate_strategies &lt;-<span class="st"> </span><span class="cf">function</span>(l_params, <span class="dt">wtp =</span> <span class="dv">100000</span>){</span>
-<span id="cb2-2"><a href="#cb2-2"></a>    <span class="co"># l_params_all must include:</span></span>
-<span id="cb2-3"><a href="#cb2-3"></a>    <span class="co"># -- *** Model parameters ***</span></span>
-<span id="cb2-4"><a href="#cb2-4"></a>    <span class="co"># -- disease progression parameters (annual): r_HD, p_S1S2, hr_S1D, hr_S2D, </span></span>
-<span id="cb2-5"><a href="#cb2-5"></a>    <span class="co"># -- initial cohort distribution: v_s_init</span></span>
-<span id="cb2-6"><a href="#cb2-6"></a>    <span class="co"># -- vector of annual state utilities: v_state_utility = c(u_H, u_S1, u_S2, u_D)</span></span>
-<span id="cb2-7"><a href="#cb2-7"></a>    <span class="co"># -- vector of annual state costs: v_state_cost = c(c_H, c_S1, c_S2, c_D)</span></span>
-<span id="cb2-8"><a href="#cb2-8"></a>    <span class="co"># -- time horizon (in annual cycles): n_cyles</span></span>
-<span id="cb2-9"><a href="#cb2-9"></a>    <span class="co"># -- annual discount rate: r_disc</span></span>
-<span id="cb2-10"><a href="#cb2-10"></a>    <span class="co"># -- *** Strategy specific parameters ***</span></span>
-<span id="cb2-11"><a href="#cb2-11"></a>    <span class="co"># -- treartment costs (applied to Sick and Sicker states): c_trtA, c_trtB</span></span>
-<span id="cb2-12"><a href="#cb2-12"></a>    <span class="co"># -- utility with Treatment_A (for Sick state only): u_trtA</span></span>
-<span id="cb2-13"><a href="#cb2-13"></a>    <span class="co"># -- hazard ratio of progression with Treatment_B: hr_S1S1_trtB</span></span>
-<span id="cb2-14"><a href="#cb2-14"></a>  </span>
-<span id="cb2-15"><a href="#cb2-15"></a>  <span class="kw">with</span>(<span class="kw">as.list</span>(l_params), {</span>
-<span id="cb2-16"><a href="#cb2-16"></a>    </span>
-<span id="cb2-17"><a href="#cb2-17"></a>    <span class="co">####### SET INTERNAL PARAMETERS #########################################</span></span>
-<span id="cb2-18"><a href="#cb2-18"></a>    <span class="co"># Strategy names</span></span>
-<span id="cb2-19"><a href="#cb2-19"></a>    v_names_strat &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="st">&quot;No_Treatment&quot;</span>, <span class="st">&quot;Treatment_A&quot;</span>, <span class="st">&quot;Treatment_B&quot;</span>)</span>
-<span id="cb2-20"><a href="#cb2-20"></a>    <span class="co"># Number of strategies</span></span>
-<span id="cb2-21"><a href="#cb2-21"></a>    n_strat &lt;-<span class="st"> </span><span class="kw">length</span>(v_names_strat)</span>
-<span id="cb2-22"><a href="#cb2-22"></a>    </span>
-<span id="cb2-23"><a href="#cb2-23"></a>    <span class="co">## Treatment_A</span></span>
-<span id="cb2-24"><a href="#cb2-24"></a>    <span class="co"># utility impacts</span></span>
-<span id="cb2-25"><a href="#cb2-25"></a>    u_S1_trtA &lt;-<span class="st"> </span>u_trtA</span>
-<span id="cb2-26"><a href="#cb2-26"></a>    <span class="co"># include treatment costs</span></span>
-<span id="cb2-27"><a href="#cb2-27"></a>    c_S1_trtA &lt;-<span class="st"> </span>c_S1 <span class="op">+</span><span class="st"> </span>c_trtA</span>
-<span id="cb2-28"><a href="#cb2-28"></a>    c_S2_trtA &lt;-<span class="st"> </span>c_S2 <span class="op">+</span><span class="st"> </span>c_trtA</span>
-<span id="cb2-29"><a href="#cb2-29"></a>    </span>
-<span id="cb2-30"><a href="#cb2-30"></a>    <span class="co">## Treatment_B</span></span>
-<span id="cb2-31"><a href="#cb2-31"></a>    <span class="co"># progression impacts</span></span>
-<span id="cb2-32"><a href="#cb2-32"></a>    r_S1S2_trtB &lt;-<span class="st"> </span><span class="op">-</span><span class="kw">log</span>(<span class="dv">1</span> <span class="op">-</span><span class="st"> </span>p_S1S2) <span class="op">*</span><span class="st"> </span>hr_S1S2_trtB </span>
-<span id="cb2-33"><a href="#cb2-33"></a>    p_S1S2_trtB &lt;-<span class="st"> </span><span class="dv">1</span> <span class="op">-</span><span class="st"> </span><span class="kw">exp</span>(<span class="op">-</span>r_S1S2_trtB)</span>
-<span id="cb2-34"><a href="#cb2-34"></a>    <span class="co"># include treatment costs</span></span>
-<span id="cb2-35"><a href="#cb2-35"></a>    c_S1_trtB &lt;-<span class="st"> </span>c_S1 <span class="op">+</span><span class="st"> </span>c_trtB</span>
-<span id="cb2-36"><a href="#cb2-36"></a>    c_S2_trtB &lt;-<span class="st"> </span>c_S2 <span class="op">+</span><span class="st"> </span>c_trtB</span>
-<span id="cb2-37"><a href="#cb2-37"></a></span>
-<span id="cb2-38"><a href="#cb2-38"></a>    </span>
-<span id="cb2-39"><a href="#cb2-39"></a>    </span>
-<span id="cb2-40"><a href="#cb2-40"></a>    <span class="co">####### INITIALIZATION #########################################</span></span>
-<span id="cb2-41"><a href="#cb2-41"></a>    <span class="co"># Create cost-effectiveness results data frame</span></span>
-<span id="cb2-42"><a href="#cb2-42"></a>    df_ce &lt;-<span class="st"> </span><span class="kw">data.frame</span>(<span class="dt">Strategy =</span> v_names_strat,</span>
-<span id="cb2-43"><a href="#cb2-43"></a>                        <span class="dt">Cost =</span> <span class="kw">numeric</span>(n_strat),</span>
-<span id="cb2-44"><a href="#cb2-44"></a>                        <span class="dt">QALY =</span> <span class="kw">numeric</span>(n_strat),</span>
-<span id="cb2-45"><a href="#cb2-45"></a>                        <span class="dt">LY =</span> <span class="kw">numeric</span>(n_strat),</span>
-<span id="cb2-46"><a href="#cb2-46"></a>                        <span class="dt">stringsAsFactors =</span> <span class="ot">FALSE</span>)</span>
-<span id="cb2-47"><a href="#cb2-47"></a>    </span>
-<span id="cb2-48"><a href="#cb2-48"></a>    </span>
-<span id="cb2-49"><a href="#cb2-49"></a>    <span class="co">######### PROCESS ##############################################</span></span>
-<span id="cb2-50"><a href="#cb2-50"></a>    <span class="cf">for</span> (i <span class="cf">in</span> <span class="dv">1</span><span class="op">:</span>n_strat){</span>
-<span id="cb2-51"><a href="#cb2-51"></a>      l_params_markov &lt;-<span class="st"> </span><span class="kw">list</span>(<span class="dt">n_cycles =</span> n_cycles, <span class="dt">r_disc =</span> r_disc, <span class="dt">v_s_init =</span> v_s_init,</span>
-<span id="cb2-52"><a href="#cb2-52"></a>                              <span class="dt">c_H =</span>  c_H, <span class="dt">c_S1 =</span> c_S2, <span class="dt">c_S2 =</span> c_S1, <span class="dt">c_D =</span> c_D,</span>
-<span id="cb2-53"><a href="#cb2-53"></a>                              <span class="dt">u_H =</span>  u_H, <span class="dt">u_S1 =</span> u_S2, <span class="dt">u_S2 =</span> u_S1, <span class="dt">u_D =</span> u_D,</span>
-<span id="cb2-54"><a href="#cb2-54"></a>                              <span class="dt">r_HD =</span> r_HD, <span class="dt">hr_S1D =</span> hr_S1D, <span class="dt">hr_S2D =</span> hr_S2D,</span>
-<span id="cb2-55"><a href="#cb2-55"></a>                              <span class="dt">p_HS1 =</span> p_HS1, <span class="dt">p_S1H =</span> p_S1H, <span class="dt">p_S1S2 =</span> p_S1S2)</span>
-<span id="cb2-56"><a href="#cb2-56"></a>      </span>
-<span id="cb2-57"><a href="#cb2-57"></a>      <span class="cf">if</span> (v_names_strat[i] <span class="op">==</span><span class="st"> &quot;Treatment_A&quot;</span>){</span>
-<span id="cb2-58"><a href="#cb2-58"></a>        l_params_markov<span class="op">$</span>u_S1 &lt;-<span class="st"> </span>u_S1_trtA</span>
-<span id="cb2-59"><a href="#cb2-59"></a>        l_params_markov<span class="op">$</span>c_S1 &lt;-<span class="st"> </span>c_S1_trtA</span>
-<span id="cb2-60"><a href="#cb2-60"></a>        l_params_markov<span class="op">$</span>c_S2 &lt;-<span class="st"> </span>c_S2_trtA</span>
-<span id="cb2-61"><a href="#cb2-61"></a>        </span>
-<span id="cb2-62"><a href="#cb2-62"></a>      } <span class="cf">else</span> <span class="cf">if</span>(v_names_strat[i] <span class="op">==</span><span class="st"> &quot;Treatment_B&quot;</span>){</span>
-<span id="cb2-63"><a href="#cb2-63"></a>        l_params_markov<span class="op">$</span>p_S1S2 &lt;-<span class="st"> </span>p_S1S2_trtB</span>
-<span id="cb2-64"><a href="#cb2-64"></a>        l_params_markov<span class="op">$</span>c_S1   &lt;-<span class="st"> </span>c_S1_trtB</span>
-<span id="cb2-65"><a href="#cb2-65"></a>        l_params_markov<span class="op">$</span>c_S2   &lt;-<span class="st"> </span>c_S2_trtB</span>
-<span id="cb2-66"><a href="#cb2-66"></a>      }</span>
-<span id="cb2-67"><a href="#cb2-67"></a></span>
-<span id="cb2-68"><a href="#cb2-68"></a>      l_result &lt;-<span class="st"> </span><span class="kw">run_sick_sicker_model</span>(l_params_markov)</span>
-<span id="cb2-69"><a href="#cb2-69"></a>      </span>
-<span id="cb2-70"><a href="#cb2-70"></a>      df_ce[i, <span class="kw">c</span>(<span class="st">&quot;Cost&quot;</span>, <span class="st">&quot;QALY&quot;</span>, <span class="st">&quot;LY&quot;</span>)] &lt;-<span class="st"> </span><span class="kw">c</span>(l_result<span class="op">$</span>n_tot_cost,</span>
-<span id="cb2-71"><a href="#cb2-71"></a>                                           l_result<span class="op">$</span>n_tot_qaly,</span>
-<span id="cb2-72"><a href="#cb2-72"></a>                                           l_result<span class="op">$</span>n_tot_ly)</span>
-<span id="cb2-73"><a href="#cb2-73"></a>      df_ce[i, <span class="st">&quot;NMB&quot;</span>] &lt;-<span class="st"> </span>l_result<span class="op">$</span>n_tot_qaly <span class="op">*</span><span class="st"> </span>wtp <span class="op">-</span><span class="st"> </span>l_result<span class="op">$</span>n_tot_cost</span>
-<span id="cb2-74"><a href="#cb2-74"></a>    }</span>
-<span id="cb2-75"><a href="#cb2-75"></a>    </span>
-<span id="cb2-76"><a href="#cb2-76"></a>    <span class="kw">return</span>(df_ce)</span>
-<span id="cb2-77"><a href="#cb2-77"></a>  })</span>
-<span id="cb2-78"><a href="#cb2-78"></a>}</span></code></pre></div>
+<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>simulate_strategies <span class="ot">&lt;-</span> <span class="cf">function</span>(l_params, <span class="at">wtp =</span> <span class="dv">100000</span>){</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>    <span class="co"># l_params_all must include:</span></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>    <span class="co"># -- *** Model parameters ***</span></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>    <span class="co"># -- disease progression parameters (annual): r_HD, p_S1S2, hr_S1D, hr_S2D, </span></span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>    <span class="co"># -- initial cohort distribution: v_s_init</span></span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>    <span class="co"># -- vector of annual state utilities: v_state_utility = c(u_H, u_S1, u_S2, u_D)</span></span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>    <span class="co"># -- vector of annual state costs: v_state_cost = c(c_H, c_S1, c_S2, c_D)</span></span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>    <span class="co"># -- time horizon (in annual cycles): n_cyles</span></span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>    <span class="co"># -- annual discount rate: r_disc</span></span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a>    <span class="co"># -- *** Strategy specific parameters ***</span></span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a>    <span class="co"># -- treartment costs (applied to Sick and Sicker states): c_trtA, c_trtB</span></span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a>    <span class="co"># -- utility with Treatment_A (for Sick state only): u_trtA</span></span>
+<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a>    <span class="co"># -- hazard ratio of progression with Treatment_B: hr_S1S1_trtB</span></span>
+<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a>  <span class="fu">with</span>(<span class="fu">as.list</span>(l_params), {</span>
+<span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb2-17"><a href="#cb2-17" aria-hidden="true" tabindex="-1"></a>    <span class="do">####### SET INTERNAL PARAMETERS #########################################</span></span>
+<span id="cb2-18"><a href="#cb2-18" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Strategy names</span></span>
+<span id="cb2-19"><a href="#cb2-19" aria-hidden="true" tabindex="-1"></a>    v_names_strat <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">&quot;No_Treatment&quot;</span>, <span class="st">&quot;Treatment_A&quot;</span>, <span class="st">&quot;Treatment_B&quot;</span>)</span>
+<span id="cb2-20"><a href="#cb2-20" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Number of strategies</span></span>
+<span id="cb2-21"><a href="#cb2-21" aria-hidden="true" tabindex="-1"></a>    n_strat <span class="ot">&lt;-</span> <span class="fu">length</span>(v_names_strat)</span>
+<span id="cb2-22"><a href="#cb2-22" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb2-23"><a href="#cb2-23" aria-hidden="true" tabindex="-1"></a>    <span class="do">## Treatment_A</span></span>
+<span id="cb2-24"><a href="#cb2-24" aria-hidden="true" tabindex="-1"></a>    <span class="co"># utility impacts</span></span>
+<span id="cb2-25"><a href="#cb2-25" aria-hidden="true" tabindex="-1"></a>    u_S1_trtA <span class="ot">&lt;-</span> u_trtA</span>
+<span id="cb2-26"><a href="#cb2-26" aria-hidden="true" tabindex="-1"></a>    <span class="co"># include treatment costs</span></span>
+<span id="cb2-27"><a href="#cb2-27" aria-hidden="true" tabindex="-1"></a>    c_S1_trtA <span class="ot">&lt;-</span> c_S1 <span class="sc">+</span> c_trtA</span>
+<span id="cb2-28"><a href="#cb2-28" aria-hidden="true" tabindex="-1"></a>    c_S2_trtA <span class="ot">&lt;-</span> c_S2 <span class="sc">+</span> c_trtA</span>
+<span id="cb2-29"><a href="#cb2-29" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb2-30"><a href="#cb2-30" aria-hidden="true" tabindex="-1"></a>    <span class="do">## Treatment_B</span></span>
+<span id="cb2-31"><a href="#cb2-31" aria-hidden="true" tabindex="-1"></a>    <span class="co"># progression impacts</span></span>
+<span id="cb2-32"><a href="#cb2-32" aria-hidden="true" tabindex="-1"></a>    r_S1S2_trtB <span class="ot">&lt;-</span> <span class="sc">-</span><span class="fu">log</span>(<span class="dv">1</span> <span class="sc">-</span> p_S1S2) <span class="sc">*</span> hr_S1S2_trtB </span>
+<span id="cb2-33"><a href="#cb2-33" aria-hidden="true" tabindex="-1"></a>    p_S1S2_trtB <span class="ot">&lt;-</span> <span class="dv">1</span> <span class="sc">-</span> <span class="fu">exp</span>(<span class="sc">-</span>r_S1S2_trtB)</span>
+<span id="cb2-34"><a href="#cb2-34" aria-hidden="true" tabindex="-1"></a>    <span class="co"># include treatment costs</span></span>
+<span id="cb2-35"><a href="#cb2-35" aria-hidden="true" tabindex="-1"></a>    c_S1_trtB <span class="ot">&lt;-</span> c_S1 <span class="sc">+</span> c_trtB</span>
+<span id="cb2-36"><a href="#cb2-36" aria-hidden="true" tabindex="-1"></a>    c_S2_trtB <span class="ot">&lt;-</span> c_S2 <span class="sc">+</span> c_trtB</span>
+<span id="cb2-37"><a href="#cb2-37" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-38"><a href="#cb2-38" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb2-39"><a href="#cb2-39" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb2-40"><a href="#cb2-40" aria-hidden="true" tabindex="-1"></a>    <span class="do">####### INITIALIZATION #########################################</span></span>
+<span id="cb2-41"><a href="#cb2-41" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Create cost-effectiveness results data frame</span></span>
+<span id="cb2-42"><a href="#cb2-42" aria-hidden="true" tabindex="-1"></a>    df_ce <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(<span class="at">Strategy =</span> v_names_strat,</span>
+<span id="cb2-43"><a href="#cb2-43" aria-hidden="true" tabindex="-1"></a>                        <span class="at">Cost =</span> <span class="fu">numeric</span>(n_strat),</span>
+<span id="cb2-44"><a href="#cb2-44" aria-hidden="true" tabindex="-1"></a>                        <span class="at">QALY =</span> <span class="fu">numeric</span>(n_strat),</span>
+<span id="cb2-45"><a href="#cb2-45" aria-hidden="true" tabindex="-1"></a>                        <span class="at">LY =</span> <span class="fu">numeric</span>(n_strat),</span>
+<span id="cb2-46"><a href="#cb2-46" aria-hidden="true" tabindex="-1"></a>                        <span class="at">stringsAsFactors =</span> <span class="cn">FALSE</span>)</span>
+<span id="cb2-47"><a href="#cb2-47" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb2-48"><a href="#cb2-48" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb2-49"><a href="#cb2-49" aria-hidden="true" tabindex="-1"></a>    <span class="do">######### PROCESS ##############################################</span></span>
+<span id="cb2-50"><a href="#cb2-50" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> (i <span class="cf">in</span> <span class="dv">1</span><span class="sc">:</span>n_strat){</span>
+<span id="cb2-51"><a href="#cb2-51" aria-hidden="true" tabindex="-1"></a>      l_params_markov <span class="ot">&lt;-</span> <span class="fu">list</span>(<span class="at">n_cycles =</span> n_cycles, <span class="at">r_disc =</span> r_disc, <span class="at">v_s_init =</span> v_s_init,</span>
+<span id="cb2-52"><a href="#cb2-52" aria-hidden="true" tabindex="-1"></a>                              <span class="at">c_H =</span>  c_H, <span class="at">c_S1 =</span> c_S2, <span class="at">c_S2 =</span> c_S1, <span class="at">c_D =</span> c_D,</span>
+<span id="cb2-53"><a href="#cb2-53" aria-hidden="true" tabindex="-1"></a>                              <span class="at">u_H =</span>  u_H, <span class="at">u_S1 =</span> u_S2, <span class="at">u_S2 =</span> u_S1, <span class="at">u_D =</span> u_D,</span>
+<span id="cb2-54"><a href="#cb2-54" aria-hidden="true" tabindex="-1"></a>                              <span class="at">r_HD =</span> r_HD, <span class="at">hr_S1D =</span> hr_S1D, <span class="at">hr_S2D =</span> hr_S2D,</span>
+<span id="cb2-55"><a href="#cb2-55" aria-hidden="true" tabindex="-1"></a>                              <span class="at">p_HS1 =</span> p_HS1, <span class="at">p_S1H =</span> p_S1H, <span class="at">p_S1S2 =</span> p_S1S2)</span>
+<span id="cb2-56"><a href="#cb2-56" aria-hidden="true" tabindex="-1"></a>      </span>
+<span id="cb2-57"><a href="#cb2-57" aria-hidden="true" tabindex="-1"></a>      <span class="cf">if</span> (v_names_strat[i] <span class="sc">==</span> <span class="st">&quot;Treatment_A&quot;</span>){</span>
+<span id="cb2-58"><a href="#cb2-58" aria-hidden="true" tabindex="-1"></a>        l_params_markov<span class="sc">$</span>u_S1 <span class="ot">&lt;-</span> u_S1_trtA</span>
+<span id="cb2-59"><a href="#cb2-59" aria-hidden="true" tabindex="-1"></a>        l_params_markov<span class="sc">$</span>c_S1 <span class="ot">&lt;-</span> c_S1_trtA</span>
+<span id="cb2-60"><a href="#cb2-60" aria-hidden="true" tabindex="-1"></a>        l_params_markov<span class="sc">$</span>c_S2 <span class="ot">&lt;-</span> c_S2_trtA</span>
+<span id="cb2-61"><a href="#cb2-61" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb2-62"><a href="#cb2-62" aria-hidden="true" tabindex="-1"></a>      } <span class="cf">else</span> <span class="cf">if</span>(v_names_strat[i] <span class="sc">==</span> <span class="st">&quot;Treatment_B&quot;</span>){</span>
+<span id="cb2-63"><a href="#cb2-63" aria-hidden="true" tabindex="-1"></a>        l_params_markov<span class="sc">$</span>p_S1S2 <span class="ot">&lt;-</span> p_S1S2_trtB</span>
+<span id="cb2-64"><a href="#cb2-64" aria-hidden="true" tabindex="-1"></a>        l_params_markov<span class="sc">$</span>c_S1   <span class="ot">&lt;-</span> c_S1_trtB</span>
+<span id="cb2-65"><a href="#cb2-65" aria-hidden="true" tabindex="-1"></a>        l_params_markov<span class="sc">$</span>c_S2   <span class="ot">&lt;-</span> c_S2_trtB</span>
+<span id="cb2-66"><a href="#cb2-66" aria-hidden="true" tabindex="-1"></a>      }</span>
+<span id="cb2-67"><a href="#cb2-67" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-68"><a href="#cb2-68" aria-hidden="true" tabindex="-1"></a>      l_result <span class="ot">&lt;-</span> <span class="fu">run_sick_sicker_model</span>(l_params_markov)</span>
+<span id="cb2-69"><a href="#cb2-69" aria-hidden="true" tabindex="-1"></a>      </span>
+<span id="cb2-70"><a href="#cb2-70" aria-hidden="true" tabindex="-1"></a>      df_ce[i, <span class="fu">c</span>(<span class="st">&quot;Cost&quot;</span>, <span class="st">&quot;QALY&quot;</span>, <span class="st">&quot;LY&quot;</span>)] <span class="ot">&lt;-</span> <span class="fu">c</span>(l_result<span class="sc">$</span>n_tot_cost,</span>
+<span id="cb2-71"><a href="#cb2-71" aria-hidden="true" tabindex="-1"></a>                                           l_result<span class="sc">$</span>n_tot_qaly,</span>
+<span id="cb2-72"><a href="#cb2-72" aria-hidden="true" tabindex="-1"></a>                                           l_result<span class="sc">$</span>n_tot_ly)</span>
+<span id="cb2-73"><a href="#cb2-73" aria-hidden="true" tabindex="-1"></a>      df_ce[i, <span class="st">&quot;NMB&quot;</span>] <span class="ot">&lt;-</span> l_result<span class="sc">$</span>n_tot_qaly <span class="sc">*</span> wtp <span class="sc">-</span> l_result<span class="sc">$</span>n_tot_cost</span>
+<span id="cb2-74"><a href="#cb2-74" aria-hidden="true" tabindex="-1"></a>    }</span>
+<span id="cb2-75"><a href="#cb2-75" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb2-76"><a href="#cb2-76" aria-hidden="true" tabindex="-1"></a>    <span class="fu">return</span>(df_ce)</span>
+<span id="cb2-77"><a href="#cb2-77" aria-hidden="true" tabindex="-1"></a>  })</span>
+<span id="cb2-78"><a href="#cb2-78" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div>
 <p>To demonstrate the <code>simulate_strategies</code> function, we define a list of model and strategy parameters. We call this our basecase list of parameters, as these will be the default parameter values used when conducting the DSA.</p>
-<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1"></a>my_params_basecase &lt;-<span class="st"> </span><span class="kw">list</span>(<span class="dt">p_HS1 =</span> <span class="fl">0.15</span>,</span>
-<span id="cb3-2"><a href="#cb3-2"></a>                           <span class="dt">p_S1H =</span> <span class="fl">0.5</span>,</span>
-<span id="cb3-3"><a href="#cb3-3"></a>                           <span class="dt">p_S1S2 =</span> <span class="fl">0.105</span>,</span>
-<span id="cb3-4"><a href="#cb3-4"></a>                           <span class="dt">r_HD =</span> <span class="fl">0.002</span>, </span>
-<span id="cb3-5"><a href="#cb3-5"></a>                           <span class="dt">hr_S1D =</span> <span class="dv">3</span>, </span>
-<span id="cb3-6"><a href="#cb3-6"></a>                           <span class="dt">hr_S2D =</span> <span class="dv">10</span>,</span>
-<span id="cb3-7"><a href="#cb3-7"></a>                           <span class="dt">hr_S1S2_trtB =</span> <span class="fl">0.6</span>,</span>
-<span id="cb3-8"><a href="#cb3-8"></a>                           <span class="dt">c_H =</span> <span class="dv">2000</span>,</span>
-<span id="cb3-9"><a href="#cb3-9"></a>                           <span class="dt">c_S1 =</span> <span class="dv">4000</span>,</span>
-<span id="cb3-10"><a href="#cb3-10"></a>                           <span class="dt">c_S2 =</span> <span class="dv">15000</span>, </span>
-<span id="cb3-11"><a href="#cb3-11"></a>                           <span class="dt">c_D =</span> <span class="dv">0</span>,</span>
-<span id="cb3-12"><a href="#cb3-12"></a>                           <span class="dt">c_trtA =</span> <span class="dv">12000</span>,</span>
-<span id="cb3-13"><a href="#cb3-13"></a>                           <span class="dt">c_trtB =</span> <span class="dv">13000</span>,</span>
-<span id="cb3-14"><a href="#cb3-14"></a>                           <span class="dt">u_H =</span> <span class="dv">1</span>,</span>
-<span id="cb3-15"><a href="#cb3-15"></a>                           <span class="dt">u_S1 =</span> <span class="fl">0.75</span>,</span>
-<span id="cb3-16"><a href="#cb3-16"></a>                           <span class="dt">u_S2 =</span> <span class="fl">0.5</span>,</span>
-<span id="cb3-17"><a href="#cb3-17"></a>                           <span class="dt">u_D =</span> <span class="dv">0</span>,</span>
-<span id="cb3-18"><a href="#cb3-18"></a>                           <span class="dt">u_trtA =</span> <span class="fl">0.95</span>,</span>
-<span id="cb3-19"><a href="#cb3-19"></a>                           <span class="dt">n_cycles =</span> <span class="dv">75</span>,</span>
-<span id="cb3-20"><a href="#cb3-20"></a>                           <span class="dt">v_s_init =</span> <span class="kw">c</span>(<span class="dv">1</span>, <span class="dv">0</span>, <span class="dv">0</span>, <span class="dv">0</span>),</span>
-<span id="cb3-21"><a href="#cb3-21"></a>                           <span class="dt">r_disc =</span> <span class="fl">0.03</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>my_params_basecase <span class="ot">&lt;-</span> <span class="fu">list</span>(<span class="at">p_HS1 =</span> <span class="fl">0.15</span>,</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>                           <span class="at">p_S1H =</span> <span class="fl">0.5</span>,</span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>                           <span class="at">p_S1S2 =</span> <span class="fl">0.105</span>,</span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>                           <span class="at">r_HD =</span> <span class="fl">0.002</span>, </span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>                           <span class="at">hr_S1D =</span> <span class="dv">3</span>, </span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>                           <span class="at">hr_S2D =</span> <span class="dv">10</span>,</span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>                           <span class="at">hr_S1S2_trtB =</span> <span class="fl">0.6</span>,</span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a>                           <span class="at">c_H =</span> <span class="dv">2000</span>,</span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a>                           <span class="at">c_S1 =</span> <span class="dv">4000</span>,</span>
+<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a>                           <span class="at">c_S2 =</span> <span class="dv">15000</span>, </span>
+<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a>                           <span class="at">c_D =</span> <span class="dv">0</span>,</span>
+<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a>                           <span class="at">c_trtA =</span> <span class="dv">12000</span>,</span>
+<span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a>                           <span class="at">c_trtB =</span> <span class="dv">13000</span>,</span>
+<span id="cb3-14"><a href="#cb3-14" aria-hidden="true" tabindex="-1"></a>                           <span class="at">u_H =</span> <span class="dv">1</span>,</span>
+<span id="cb3-15"><a href="#cb3-15" aria-hidden="true" tabindex="-1"></a>                           <span class="at">u_S1 =</span> <span class="fl">0.75</span>,</span>
+<span id="cb3-16"><a href="#cb3-16" aria-hidden="true" tabindex="-1"></a>                           <span class="at">u_S2 =</span> <span class="fl">0.5</span>,</span>
+<span id="cb3-17"><a href="#cb3-17" aria-hidden="true" tabindex="-1"></a>                           <span class="at">u_D =</span> <span class="dv">0</span>,</span>
+<span id="cb3-18"><a href="#cb3-18" aria-hidden="true" tabindex="-1"></a>                           <span class="at">u_trtA =</span> <span class="fl">0.95</span>,</span>
+<span id="cb3-19"><a href="#cb3-19" aria-hidden="true" tabindex="-1"></a>                           <span class="at">n_cycles =</span> <span class="dv">75</span>,</span>
+<span id="cb3-20"><a href="#cb3-20" aria-hidden="true" tabindex="-1"></a>                           <span class="at">v_s_init =</span> <span class="fu">c</span>(<span class="dv">1</span>, <span class="dv">0</span>, <span class="dv">0</span>, <span class="dv">0</span>),</span>
+<span id="cb3-21"><a href="#cb3-21" aria-hidden="true" tabindex="-1"></a>                           <span class="at">r_disc =</span> <span class="fl">0.03</span>)</span></code></pre></div>
 <p>If we then call <code>simulate_strategies</code> with the list <code>my_params_basecase</code>, we will get a data frame of strategy outcomes:</p>
-<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1"></a>df_ce &lt;-<span class="st"> </span><span class="kw">simulate_strategies</span>(my_params_basecase)</span>
-<span id="cb4-2"><a href="#cb4-2"></a></span>
-<span id="cb4-3"><a href="#cb4-3"></a>df_ce</span>
-<span id="cb4-4"><a href="#cb4-4"></a><span class="co">#&gt;       Strategy     Cost     QALY       LY     NMB</span></span>
-<span id="cb4-5"><a href="#cb4-5"></a><span class="co">#&gt; 1 No_Treatment 112005.4 21.66567 26.24113 2054562</span></span>
-<span id="cb4-6"><a href="#cb4-6"></a><span class="co">#&gt; 2  Treatment_A 276350.4 23.31164 26.24113 2054814</span></span>
-<span id="cb4-7"><a href="#cb4-7"></a><span class="co">#&gt; 3  Treatment_B 248990.2 22.49849 26.95238 2000859</span></span></code></pre></div>
+<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>df_ce <span class="ot">&lt;-</span> <span class="fu">simulate_strategies</span>(my_params_basecase)</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>df_ce</span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;       Strategy     Cost     QALY       LY     NMB</span></span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 1 No_Treatment 112005.4 21.66567 26.24113 2054562</span></span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 2  Treatment_A 276350.4 23.31164 26.24113 2054814</span></span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 3  Treatment_B 248990.2 22.49849 26.95238 2000859</span></span></code></pre></div>
 </div>
 <div id="generating-dsa-results" class="section level2">
 <h2>Generating DSA results</h2>
@@ -578,54 +383,54 @@ code > span.er { color: #a61717; background-color: #e3d2d2; }
 <div id="one-way-dsa-generation" class="section level2">
 <h2>One-way DSA generation</h2>
 <p>To execute a one-way DSA, we first create a data frame that contains the list of parameter names to be varied (first column) and the minimum (second column) and maximum (third column) values of the range of values for each parameter. In the example below, we will conduct four one-way DSAs separately on four different parameters: the utility benefit of Treatment_A; the cost of Treatment_A; the reduction, as a hazard ratio, on the rate of progressing from Sick to Sicker with Treatment_B; and the rate of dying from the Healthy state.</p>
-<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1"></a>my_owsa_params_range &lt;-<span class="st"> </span><span class="kw">data.frame</span>(<span class="dt">pars =</span> <span class="kw">c</span>(<span class="st">&quot;u_trtA&quot;</span>, <span class="st">&quot;c_trtA&quot;</span>, <span class="st">&quot;hr_S1S2_trtB&quot;</span>, <span class="st">&quot;r_HD&quot;</span>),</span>
-<span id="cb5-2"><a href="#cb5-2"></a>                              <span class="dt">min =</span> <span class="kw">c</span>(<span class="fl">0.9</span>, <span class="dv">9000</span>, <span class="fl">0.3</span>, <span class="fl">0.001</span>),</span>
-<span id="cb5-3"><a href="#cb5-3"></a>                              <span class="dt">max =</span> <span class="kw">c</span>(<span class="dv">1</span>,   <span class="dv">24000</span>, <span class="fl">0.9</span>, <span class="fl">0.003</span>))</span></code></pre></div>
+<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>my_owsa_params_range <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(<span class="at">pars =</span> <span class="fu">c</span>(<span class="st">&quot;u_trtA&quot;</span>, <span class="st">&quot;c_trtA&quot;</span>, <span class="st">&quot;hr_S1S2_trtB&quot;</span>, <span class="st">&quot;r_HD&quot;</span>),</span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>                              <span class="at">min =</span> <span class="fu">c</span>(<span class="fl">0.9</span>, <span class="dv">9000</span>, <span class="fl">0.3</span>, <span class="fl">0.001</span>),</span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>                              <span class="at">max =</span> <span class="fu">c</span>(<span class="dv">1</span>,   <span class="dv">24000</span>, <span class="fl">0.9</span>, <span class="fl">0.003</span>))</span></code></pre></div>
 <p>To conduct the one-way DSA, we then call the function <code>run_owsa_det</code> with <code>my_owsa_params_range</code>, specifying the parameters to be varied and over which ranges, and <code>my_params_basecase</code> as the fixed parameter values to be used in the model when a parameter is not being explicitly varied in the one-way sensitivity analysis. Note that the parameters specified in <code>my_owsa_params_range$pars</code> are a subset of the parameters listed in <code>my_params_basecase</code>.</p>
 <p>Additional inputs are the number of equally-spaced samples (<code>nsamp</code>) to be used between the specified minimum and maximum of each range, the user-defined function (<code>FUN</code>) to be called to generate model outcomes for each strategy, the vector of outcomes to be stored (must be outcomes generated by the data frame output of the function passed in <code>FUN</code>), and the vector of strategy names to be evaluated.</p>
 <p>The input <code>progress = TRUE</code> allows the user to see a progress bar as the DSA is conducted. When many parameters are being varied, <code>nsamp</code> is large, and/or the user-defined function is computationally burdensome, the DSA may take a noticeable amount of time to compute and the progress display is recommended.</p>
-<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1"></a><span class="kw">library</span>(dampack)</span>
-<span id="cb6-2"><a href="#cb6-2"></a>l_owsa_det &lt;-<span class="st"> </span><span class="kw">run_owsa_det</span>(<span class="dt">params_range =</span> my_owsa_params_range,</span>
-<span id="cb6-3"><a href="#cb6-3"></a>                           <span class="dt">params_basecase =</span> my_params_basecase,</span>
-<span id="cb6-4"><a href="#cb6-4"></a>                           <span class="dt">nsamp =</span> <span class="dv">100</span>,</span>
-<span id="cb6-5"><a href="#cb6-5"></a>                           <span class="dt">FUN =</span> simulate_strategies,</span>
-<span id="cb6-6"><a href="#cb6-6"></a>                           <span class="dt">outcomes =</span> <span class="kw">c</span>(<span class="st">&quot;Cost&quot;</span>, <span class="st">&quot;QALY&quot;</span>, <span class="st">&quot;LY&quot;</span>, <span class="st">&quot;NMB&quot;</span>),</span>
-<span id="cb6-7"><a href="#cb6-7"></a>                           <span class="dt">strategies =</span> <span class="kw">c</span>(<span class="st">&quot;No_Treatment&quot;</span>, <span class="st">&quot;Treatment_A&quot;</span>, <span class="st">&quot;Treatment_B&quot;</span>),</span>
-<span id="cb6-8"><a href="#cb6-8"></a>                           <span class="dt">progress =</span> <span class="ot">FALSE</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(dampack)</span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>l_owsa_det <span class="ot">&lt;-</span> <span class="fu">run_owsa_det</span>(<span class="at">params_range =</span> my_owsa_params_range,</span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>                           <span class="at">params_basecase =</span> my_params_basecase,</span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>                           <span class="at">nsamp =</span> <span class="dv">100</span>,</span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>                           <span class="at">FUN =</span> simulate_strategies,</span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a>                           <span class="at">outcomes =</span> <span class="fu">c</span>(<span class="st">&quot;Cost&quot;</span>, <span class="st">&quot;QALY&quot;</span>, <span class="st">&quot;LY&quot;</span>, <span class="st">&quot;NMB&quot;</span>),</span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a>                           <span class="at">strategies =</span> <span class="fu">c</span>(<span class="st">&quot;No_Treatment&quot;</span>, <span class="st">&quot;Treatment_A&quot;</span>, <span class="st">&quot;Treatment_B&quot;</span>),</span>
+<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a>                           <span class="at">progress =</span> <span class="cn">FALSE</span>)</span></code></pre></div>
 <p>Because we have defined multiple parameters in <code>my_owsa_params_range</code>, we have instructed <code>run_owsa_det</code> to execute a series of separate one-way sensitivity analyses and compile the results into a single <code>owsa</code> object for each requested <code>outcome</code>. When only one outcome is specified <code>run_owsa_det</code> returns a <code>owsa</code> data frame. When more than one outcome is specified, <code>run_owsa_det</code> returns a list containing one <code>owsa</code> data frame for each outcome. To access the <code>owsa</code> object corresponding to a given outcome, one can select the list item with the name “owsa_<outcome>”. For example, the <code>owsa</code> object associated with the <code>NMB</code> outcome can be accessed as <code>l_owsa_det$owsa_NMB</code>.</p>
 <p>Each <code>owsa</code> object returned by <code>run_owsa_det</code> is a data frame with four columns: <code>parameter</code>, <code>strategy</code>, <code>param_val</code>, and <code>outcome_val</code>. For each row, <code>param_val</code> is the value used for the parameter listed in <code>parameter</code> and <code>outcome_val</code> is the value of the specified outcome for the strategy listed in <code>strategy</code>. The <code>owsa</code> object can now be visualized using the functionality within <code>dampack</code>, which includes an <code>owsa</code> plot method and a visualization of the optimal strategy over each parameter range (function <code>owsa_opt_strat</code>).</p>
-<div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1"></a><span class="co"># Select the net monetary benefit (NMB) owsa object</span></span>
-<span id="cb7-2"><a href="#cb7-2"></a>my_owsa_NMB &lt;-<span class="st"> </span>l_owsa_det<span class="op">$</span>owsa_NMB</span>
-<span id="cb7-3"><a href="#cb7-3"></a></span>
-<span id="cb7-4"><a href="#cb7-4"></a><span class="co"># Plot outcome of each strategy over each parameter range</span></span>
-<span id="cb7-5"><a href="#cb7-5"></a><span class="kw">plot</span>(my_owsa_NMB,</span>
-<span id="cb7-6"><a href="#cb7-6"></a>     <span class="dt">n_x_ticks =</span> <span class="dv">3</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Select the net monetary benefit (NMB) owsa object</span></span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>my_owsa_NMB <span class="ot">&lt;-</span> l_owsa_det<span class="sc">$</span>owsa_NMB</span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Plot outcome of each strategy over each parameter range</span></span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(my_owsa_NMB,</span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a>     <span class="at">n_x_ticks =</span> <span class="dv">3</span>)</span></code></pre></div>
 <p><img src="data:image/png;base64,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" style="display: block; margin: auto;" /></p>
-<div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1"></a></span>
-<span id="cb8-2"><a href="#cb8-2"></a><span class="co"># Visualize optimal strategy (max NMB) over each parameter range</span></span>
-<span id="cb8-3"><a href="#cb8-3"></a><span class="kw">owsa_opt_strat</span>(my_owsa_NMB)</span></code></pre></div>
+<div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a><span class="co"># Visualize optimal strategy (max NMB) over each parameter range</span></span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a><span class="fu">owsa_opt_strat</span>(my_owsa_NMB)</span></code></pre></div>
 <p><img src="data:image/png;base64,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" style="display: block; margin: auto;" /></p>
 </div>
 <div id="two-way-dsa-generation" class="section level2">
 <h2>Two-way DSA Generation</h2>
 <p>A two-way DSA is used to assess how model outcomes vary over specified ranges of two model parameters jointly. Similar to a one-way DSA, we first create a data frame with the (two) parameters that we wish to vary and their individual ranges. This data frame must have exactly two rows since the two-way DSA requires exactly two parameters.</p>
-<div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1"></a>my_twsa_params_range &lt;-<span class="st"> </span><span class="kw">data.frame</span>(<span class="dt">pars =</span> <span class="kw">c</span>(<span class="st">&quot;hr_S1S2_trtB&quot;</span>, <span class="st">&quot;r_HD&quot;</span>),</span>
-<span id="cb9-2"><a href="#cb9-2"></a>                              <span class="dt">min =</span> <span class="kw">c</span>(<span class="fl">0.3</span>, <span class="fl">0.001</span>),</span>
-<span id="cb9-3"><a href="#cb9-3"></a>                              <span class="dt">max =</span> <span class="kw">c</span>(<span class="fl">0.9</span>, <span class="fl">0.003</span>))</span></code></pre></div>
+<div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>my_twsa_params_range <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(<span class="at">pars =</span> <span class="fu">c</span>(<span class="st">&quot;hr_S1S2_trtB&quot;</span>, <span class="st">&quot;r_HD&quot;</span>),</span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>                              <span class="at">min =</span> <span class="fu">c</span>(<span class="fl">0.3</span>, <span class="fl">0.001</span>),</span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>                              <span class="at">max =</span> <span class="fu">c</span>(<span class="fl">0.9</span>, <span class="fl">0.003</span>))</span></code></pre></div>
 <p>To conduct the two-way DSA, we then call the function <code>run_twsa_det</code> with <code>my_twsa_params_range</code>. The general format of the function arguments for <code>run_twsa_det</code> are the same as those for <code>run_owsa_det</code>. In <code>run_twsa_det</code>, equally spaced sequences of length <code>nsamp</code> are created for the two parameters based on the inputs provided in the <code>params_range</code> argument. These two sequences of parameter values define an <code>nsamp</code> by <code>nsamp</code> grid over which <code>FUN</code> is applied to produce outcomes for every combination of the two parameters.</p>
-<div class="sourceCode" id="cb10"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1"></a>l_twsa_det &lt;-<span class="st"> </span><span class="kw">run_twsa_det</span>(<span class="dt">params_range =</span> my_twsa_params_range,</span>
-<span id="cb10-2"><a href="#cb10-2"></a>                         <span class="dt">params_basecase =</span> my_params_basecase,</span>
-<span id="cb10-3"><a href="#cb10-3"></a>                         <span class="dt">nsamp =</span> <span class="dv">50</span>,</span>
-<span id="cb10-4"><a href="#cb10-4"></a>                         <span class="dt">FUN =</span> simulate_strategies,</span>
-<span id="cb10-5"><a href="#cb10-5"></a>                         <span class="dt">outcomes =</span> <span class="kw">c</span>(<span class="st">&quot;Cost&quot;</span>, <span class="st">&quot;QALY&quot;</span>, <span class="st">&quot;NMB&quot;</span>),</span>
-<span id="cb10-6"><a href="#cb10-6"></a>                         <span class="dt">strategies =</span> <span class="kw">c</span>(<span class="st">&quot;No_Treatment&quot;</span>, <span class="st">&quot;Treatment_A&quot;</span>, <span class="st">&quot;Treatment_B&quot;</span>),</span>
-<span id="cb10-7"><a href="#cb10-7"></a>                         <span class="dt">progress =</span> <span class="ot">FALSE</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb10"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>l_twsa_det <span class="ot">&lt;-</span> <span class="fu">run_twsa_det</span>(<span class="at">params_range =</span> my_twsa_params_range,</span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>                         <span class="at">params_basecase =</span> my_params_basecase,</span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>                         <span class="at">nsamp =</span> <span class="dv">50</span>,</span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a>                         <span class="at">FUN =</span> simulate_strategies,</span>
+<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a>                         <span class="at">outcomes =</span> <span class="fu">c</span>(<span class="st">&quot;Cost&quot;</span>, <span class="st">&quot;QALY&quot;</span>, <span class="st">&quot;NMB&quot;</span>),</span>
+<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a>                         <span class="at">strategies =</span> <span class="fu">c</span>(<span class="st">&quot;No_Treatment&quot;</span>, <span class="st">&quot;Treatment_A&quot;</span>, <span class="st">&quot;Treatment_B&quot;</span>),</span>
+<span id="cb10-7"><a href="#cb10-7" aria-hidden="true" tabindex="-1"></a>                         <span class="at">progress =</span> <span class="cn">FALSE</span>)</span></code></pre></div>
 <p>Like in the one-way DSA, if only one outcome is specified, then <code>run_twsa_det</code> will return a <code>twsa</code> data frame. If more than one outcome is specified, <code>run_twsa_det</code> returns a list containing one <code>twsa</code> object for each outcome. To access the <code>twsa</code> object corresponding to a given outcome, one can select the list item with the name “twsa_<outcome>”. For example, the <code>twsa</code> object associated with the <code>NMB</code> outcome can be accessed as <code>l_twsa_det$owsa_NMB</code>.</p>
 <p>Each <code>twsa</code> object returned by <code>run_twsa_det</code> is a data frame with four columns. The first two columns are named according to the two parameters specified in <code>params_range</code>. Each row is the value of that parameter corresponding to the outcome value in the <code>outcome_val</code> (fourth) column for the strategy listed in the <code>strategy</code> (third) column. The <code>twsa</code> object can now be visualized using the functionality within <code>dampack</code>. The <code>twsa</code> plot method shows the optimal strategy as a function of the two parameters being varied in the two-way DSA, which is the primary way that two-way analyses are reported.</p>
-<div class="sourceCode" id="cb11"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1"></a>my_twsa_NMB &lt;-<span class="st"> </span>l_twsa_det<span class="op">$</span>twsa_NMB</span>
-<span id="cb11-2"><a href="#cb11-2"></a></span>
-<span id="cb11-3"><a href="#cb11-3"></a><span class="co"># plot optimal strategy (max NMB) as a function of the two parameters varied in the two-way DSA</span></span>
-<span id="cb11-4"><a href="#cb11-4"></a><span class="kw">plot</span>(my_twsa_NMB)</span></code></pre></div>
+<div class="sourceCode" id="cb11"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a>my_twsa_NMB <span class="ot">&lt;-</span> l_twsa_det<span class="sc">$</span>twsa_NMB</span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a><span class="co"># plot optimal strategy (max NMB) as a function of the two parameters varied in the two-way DSA</span></span>
+<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(my_twsa_NMB)</span></code></pre></div>
 <p><img src="data:image/png;base64,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" style="display: block; margin: auto;" /></p>
 </div>
 </div>
