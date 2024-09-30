@@ -10,9 +10,9 @@ knitr::opts_chunk$set(
 ## -----------------------------------------------------------------------------
 library(dampack)
 data("example_psa")
-psa_big <- make_psa_obj(example_psa$cost, 
+psa_big <- make_psa_obj(example_psa$cost,
                         example_psa$effectiveness,
-                        example_psa$parameters, 
+                        example_psa$parameters,
                         example_psa$strategies)
 
 ## -----------------------------------------------------------------------------
@@ -23,10 +23,10 @@ head(evpi_obj)
 
 ## -----------------------------------------------------------------------------
 p <- plot(evpi_obj,
-          txtsize = 16, 
-          effect_units = "QALY", 
+          txtsize = 16,
+          effect_units = "QALY",
           currency = "Dollars ($)",
-          xbreaks = seq(0, 200, by = 10), 
+          xbreaks = seq(0, 200, by = 10),
           ylim = c(0, 100000))
 p
 
@@ -75,7 +75,7 @@ summary(mm)
 ## -----------------------------------------------------------------------------
 pred_mm <- predict(mm,
                    ranges = list("pFailChemo" = c(0.3, 0.6),
-                                  "cChemo" = NULL),
+                                 "cChemo" = NULL),
                    nsamp = 10)
 head(pred_mm)
 

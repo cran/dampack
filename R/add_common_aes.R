@@ -9,13 +9,19 @@
 #' @param greystart between 0 and 1. used in greyscale only. smaller numbers are lighter
 #' @param greyend between 0 and 1, greater than greystart.
 #' @param continuous which axes are continuous and should be modified by this function
-#' @param n_x_ticks,n_y_ticks number of axis ticks
-#' @param xbreaks,ybreaks vector of axis breaks.
-#' will override \code{n_x_ticks} and/or \code{n_y_ticks} if provided.
+#' @param n_x_ticks number of x-axis ticks
+#' @param n_y_ticks number of y-axis ticks
+#' @param xbreaks vector of x-axis breaks.
+#' will override \code{n_x_ticks} if provided.
+#' @param ybreaks vector of y-axis breaks.
+#' will override \code{n_y_ticks} if provided.
 #' @param facet_lab_txtsize text size for plot facet labels
-#' @param xlim,ylim vector of axis limits, or NULL, which sets limits automatically
-#' @param xtrans,ytrans transformations for the axes. See \code{\link[ggplot2]{scale_continuous}} for details.
-#' @param xexpand,yexpand Padding around data. See \code{\link[ggplot2]{scale_continuous}} for details.
+#' @param xlim vector of x-axis limits, or NULL, which sets limits automatically
+#' @param ylim vector of y-axis limits, or NULL, which sets limits automatically
+#' @param xtrans transformation for the x-axis. See \code{\link[ggplot2]{scale_continuous}} for details.
+#' @param ytrans transformation for the y-axis. See \code{\link[ggplot2]{scale_continuous}} for details.
+#' @param xexpand Padding around data. See \code{\link[ggplot2]{scale_continuous}} for details.
+#' @param yexpand Padding around data. See \code{\link[ggplot2]{scale_continuous}} for details.
 #' The default behavior in ggplot2 is \code{expansion(0.05)}. See \code{\link[ggplot2]{expansion}}
 #' for how to modify this.
 #' @param ... further arguments to plot.
@@ -63,7 +69,8 @@ add_common_aes <- function(gplot, txtsize, scale_name = waiver(),
         scale_color_discrete(name = scale_name, l = lval,
                              aesthetics = "color",
                              drop = FALSE)
-    } else if ("fill" %in% col_aes) {
+    }
+    if ("fill" %in% col_aes) {
       p <- p +
         scale_fill_discrete(name = scale_name, l = lval,
                             aesthetics = "fill",
@@ -76,7 +83,8 @@ add_common_aes <- function(gplot, txtsize, scale_name = waiver(),
         scale_color_grey(name = scale_name, start = greystart, end = greyend,
                          aesthetics = "color",
                          drop = FALSE)
-    } else if ("fill" %in% col_aes) {
+    }
+    if ("fill" %in% col_aes) {
       p <- p +
         scale_fill_grey(name = scale_name, start = greystart, end = greyend,
                         aesthetics = "fill",
@@ -137,7 +145,7 @@ labfun <- function(x) {
 #' @section Details:
 #' Based on function \code{pretty}.
 #' @return a vector of axis-label breaks
-#' @keywords internal
+#' @export
 number_ticks <- function(n) {
   function(limits) {
     pretty(limits, n + 1)

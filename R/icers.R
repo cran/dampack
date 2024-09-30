@@ -60,9 +60,11 @@ calculate_icers <- function(cost, effect, strategies) {
   n_cost <- length(cost)
   n_eff <- length(effect)
   n_strat <- length(strategies)
-  if (n_cost != n_eff | n_eff != n_strat) {
+  if (n_cost != n_eff || n_eff != n_strat) {
     stop("cost, effect, and strategies must all be vectors of the same length", call. = FALSE)
   }
+
+  Cost <- Effect <- Status <- Strategy <- Inc_Cost <- Inc_Effect <- ICER <- NULL
 
   # coerce to character, in case they are provided as numeric
   char_strat <- as.character(strategies)
@@ -86,7 +88,7 @@ calculate_icers <- function(cost, effect, strategies) {
   # detect dominated strategies
   # dominated strategies have a higher cost and lower effect
   df <- df %>%
-    arrange(.data$Cost, desc(.data$Effect))
+    arrange(Cost, desc(Effect))
 
   # iterate over strategies and detect (strongly) dominated strategies
   # those with higher cost and equal or lower effect
@@ -157,18 +159,92 @@ calculate_icers <- function(cost, effect, strategies) {
 
   # when combining, sort so we have ref,ND,ED,D
   results <- bind_rows(d_df, ed_df, nd_df_icers) %>%
-    arrange(desc(.data$Status), .data$Cost, desc(.data$Effect))
+    arrange(desc(Status), Cost, desc(Effect))
 
   # re-arrange columns
   results <- results %>%
-    select(.data$Strategy, .data$Cost, .data$Effect,
-           .data$Inc_Cost, .data$Inc_Effect, .data$ICER, .data$Status)
+    select(Strategy, Cost, Effect,
+           Inc_Cost, Inc_Effect, ICER, Status)
 
   # declare class of results
   class(results) <- c("icers", "data.frame")
   return(results)
 }
 
+#' Calculate incremental cost-effectiveness ratios from a \code{psa} object.
+#'
+#' @description The mean costs and QALYs for each strategy in a PSA are used
+#' to conduct an incremental cost-effectiveness analysis. \code{\link{calculate_icers}} should be used
+#' if costs and QALYs for each strategy need to be specified manually, whereas \code{calculate_icers_psa}
+#' can be used if mean costs and mean QALYs from the PSA are assumed to represent a base case scenario for
+#' calculation of ICERS.
+#'
+#' Optionally, the \code{uncertainty} argument can be used to provide the 2.5th and 97.5th
+#' quantiles for each strategy's cost and QALY outcomes based on the variation present in the PSA.
+#' Because the dominated vs. non-dominated status and the ordering of strategies in the ICER table are
+#' liable to change across different samples of the PSA, confidence intervals are not provided for the
+#' incremental costs and QALYs along the cost-effectiveness acceptability frontier.
+#' \code{link{plot.psa}} does not show the confidence intervals in the resulting plot
+#' even if present in the ICER table.
+#'
+#' @param psa \code{psa} object from \code{link{make_psa_object}}
+#' @param uncertainty whether or not 95% quantiles for the cost and QALY outcomes should be included
+#' in the resulting ICER table. Defaults to \code{FALSE}.
+#'
+#' @return A data frame and \code{icers} object of strategies and their associated
+#' status, cost, effect, incremental cost, incremental effect, and ICER. If \code{uncertainty} is
+#' set to \code{TRUE}, four additional columns are provided for the 2.5th and 97.5th quantiles for
+#' each strategy's cost and effect.
+#' @seealso \code{\link{plot.icers}}
+#' @seealso \code{\link{calculate_icers}}
+#' @importFrom tidyr pivot_longer
+#' @export
+calculate_icers_psa <- function(psa, uncertainty = FALSE) {
+
+  # check that psa has class 'psa'
+  check_psa_object(psa)
+
+  # Calculate mean outcome values
+  psa_sum <- summary(psa)
+
+  Cost <- Effect <- Status <- Strategy <- Inc_Cost <- Inc_Effect <- ICER <- value <-
+    Lower_95_Cost <- Upper_95_Cost <- Lower_95_Effect <- Upper_95_Effect <- NULL
+
+  # Supply mean outcome values to calculate_icers
+  icers <- calculate_icers(cost = psa_sum$meanCost,
+                           effect = psa_sum$meanEffect,
+                           strategies = psa_sum$Strategy)
+
+  if (uncertainty == TRUE) {
+
+    # extract cost and effect data.frames from psa object
+    cost <- psa$cost
+    effect <- psa$effectiveness
+
+    # Calculate quantiles across costs and effects
+    cost_bounds <- cost %>%
+      pivot_longer(cols = everything(), names_to = "Strategy") %>%
+      group_by(Strategy) %>%
+      summarize(Lower_95_Cost = quantile(value, probs = 0.025, names = FALSE),
+                Upper_95_Cost = quantile(value, probs = 0.975, names = FALSE))
+
+    effect_bounds <- effect %>%
+      pivot_longer(cols = everything(), names_to = "Strategy") %>%
+      group_by(Strategy) %>%
+      summarize(Lower_95_Effect = quantile(value, probs = 0.025, names = FALSE),
+                Upper_95_Effect = quantile(value, probs = 0.975, names = FALSE))
+
+    # merge bound data.frames into icers data.frame
+    icers <- icers %>%
+      left_join(cost_bounds, by = "Strategy") %>%
+      left_join(effect_bounds, by = "Strategy") %>%
+      select(Strategy, Cost, Lower_95_Cost, Upper_95_Cost,
+             Effect, Lower_95_Effect, Upper_95_Effect,
+             Inc_Cost, Inc_Effect, ICER, Status)
+  }
+
+  return(icers)
+}
 
 #' compute icers for non-dominated strategies
 #'
@@ -215,6 +291,8 @@ compute_icers <- function(non_d) {
 #'
 #' @importFrom stringr str_sub
 #' @importFrom ggrepel geom_label_repel
+#' @importFrom rlang !!
+#' @importFrom rlang sym
 #' @export
 plot.icers <- function(x,
                        txtsize = 12,
@@ -234,11 +312,21 @@ plot.icers <- function(x,
                        yexpand = expansion(0.1),
                        max.iter = 20000,
                        ...) {
+  Cost <- Effect <- Status <- Strategy <- Inc_Cost <- Inc_Effect <- ICER <- NULL
+
+  if (ncol(x) > 7) {
+    # reformat icers class object if uncertainty bounds are present
+    x <- x %>%
+      select(Strategy, Cost, Effect,
+             Inc_Cost, Inc_Effect,
+             ICER, Status)
+  }
+
   # type checking
   label <- match.arg(label)
 
   # this is so non-dominated strategies are plotted last (on top)
-  x <- arrange(x, .data$Status)
+  x <- arrange(x, Status)
 
   # change status text in data frame for plotting
   d_name <- "Dominated"
@@ -255,7 +343,7 @@ plot.icers <- function(x,
                   "Weakly Dominated" = "blank",
                   "Efficient Frontier" = "solid")
 
-  # names to refer to in aes_
+  # names to refer to in aes
   stat_name <- "Status"
   strat_name <- "Strategy"
   eff_name <- "Effect"
@@ -269,10 +357,10 @@ plot.icers <- function(x,
   }
 
   # make plot
-  icer_plot <- ggplot(plt_data, aes_(x = as.name(eff_name), y = as.name(cost_name),
-                                     shape = as.name(stat_name))) +
+  icer_plot <- ggplot(plt_data, aes(x = !!sym(eff_name), y = !!sym(cost_name),
+                                    shape = !!sym(stat_name))) +
     geom_point(alpha = alpha, size = 2) +
-    geom_line(aes_(linetype = as.name(stat_name), group = as.name(stat_name))) +
+    geom_line(aes(linetype = !!sym(stat_name), group = !!sym(stat_name))) +
     scale_linetype_manual(name = NULL, values = plot_lines) +
     scale_shape_discrete(name = NULL) +
     labs(x = paste0("Effect (", effect_units, ")"),
@@ -300,7 +388,7 @@ plot.icers <- function(x,
 
     icer_plot <- icer_plot +
       geom_label_repel(data = lab_data,
-                       aes_(label = as.name(strat_name)),
+                       aes(label = !!sym(strat_name)),
                        size = 3,
                        show.legend = FALSE,
                        max.iter = max.iter,

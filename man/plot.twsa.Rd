@@ -11,6 +11,7 @@
   n_x_ticks = 6,
   n_y_ticks = 6,
   txtsize = 12,
+  basecase = NULL,
   ...
 )
 }
@@ -22,11 +23,15 @@
 
 \item{col}{either none, full color, or black and white}
 
-\item{n_x_ticks}{number of axis ticks}
+\item{n_x_ticks}{number of x-axis ticks}
 
-\item{n_y_ticks}{number of axis ticks}
+\item{n_y_ticks}{number of y-axis ticks}
 
 \item{txtsize}{base text size}
+
+\item{basecase}{named list of specific combination of param1 and param2 values to highlight
+on the returned plot. Each list element must have the same name as the corresponding
+parameter in the \code{owsa} object.}
 
 \item{...}{further arguments to plot.
 This is not used by \code{dampack} but required for generic consistency.}

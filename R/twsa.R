@@ -25,7 +25,7 @@ twsa <- function(sa_obj, param1 = NULL, param2 = NULL, ranges = NULL,
                  strategies = NULL,
                  poly.order = 2) {
   if (inherits(sa_obj, "psa")) {
-    if (is.null(param1) | is.null(param2)) {
+    if (is.null(param1) || is.null(param2)) {
       stop("if using psa object, both param1 and param2 must be provided")
     }
 
@@ -66,6 +66,8 @@ twsa <- function(sa_obj, param1 = NULL, param2 = NULL, ranges = NULL,
       tw <- rbind(tw, new_df, stringsAsFactors = FALSE)
     }
     names(tw)[1:2] <- parnames
+    # make strategies in twsa object into ordered factors
+    tw$strategy <- factor(tw$strategy, levels = strategies, ordered = TRUE)
   } else {
     stop("either a psa or dsa_twoway object must be provided")
   }
@@ -81,17 +83,25 @@ twsa <- function(sa_obj, param1 = NULL, param2 = NULL, ranges = NULL,
 #' @inheritParams add_common_aes
 #' @param maximize If \code{TRUE}, plot of strategy with maximum expected outcome
 #' (default); if \code{FALSE}, plot of strategy with minimum expected outcome
+#' @param basecase named list of specific combination of param1 and param2 values to highlight
+#' on the returned plot. Each list element must have the same name as the corresponding
+#' parameter in the \code{owsa} object.
 #'
 #' @import ggplot2
 #' @import dplyr
+#' @importFrom rlang !!
+#' @importFrom rlang sym
 #' @return A \code{ggplot2} plot of the two-way sensitivity analysis.
 #' @export
 plot.twsa <- function(x, maximize = TRUE,
                       col = c("full", "bw"),
                       n_x_ticks = 6,
                       n_y_ticks = 6,
-                      txtsize = 12, ...) {
+                      txtsize = 12,
+                      basecase = NULL,
+                      ...) {
 
+  outcome_val <- strategy <- NULL
   # parameter names
   params <- names(x)[c(1, 2)]
   param1 <- params[1]
@@ -107,12 +117,26 @@ plot.twsa <- function(x, maximize = TRUE,
   }
   opt_df <- x %>%
     group_by(.data[[param1]], .data[[param2]]) %>%
-    slice(obj_fn(.data$outcome_val))
-  g <- ggplot(opt_df, aes_(x = as.name(param1), y = as.name(param2))) +
-    geom_tile(aes_(fill = as.name("strategy"))) +
+    slice(obj_fn(outcome_val))
+  g <- ggplot(opt_df, aes(x = !!sym(param1), y = !!sym(param2))) +
+    geom_tile(aes(fill = strategy)) +
     theme_bw() +
     xlab(param1) +
     ylab(param2)
+
+  if (!is.null(basecase)) {
+    if (!all(names(basecase) %in% names(x)[1:2])) {
+      stop("Some parameter names in the basecase argument do not match param1 or param2 of twsa")
+    }
+    # create data.frame for "basecase" values
+    basecase_df <- as.data.frame(basecase)
+
+    g <- g +
+      geom_point(mapping = aes(x = !!sym(param1), y = !!sym(param2)),
+                 data = basecase_df,
+                 shape = 8)
+  }
+
   col <- match.arg(col)
   add_common_aes(g, txtsize, col = col, col_aes = "fill",
                  scale_name = "Strategy",

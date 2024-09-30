@@ -41,15 +41,15 @@
 #' @importFrom  utils txtProgressBar
 #' @export
 run_owsa_det <- function(params_range, params_basecase, nsamp = 100, FUN,
-                     outcomes = NULL, strategies = NULL, progress = TRUE,
-                     ...) {
+                         outcomes = NULL, strategies = NULL, progress = TRUE,
+                         ...) {
   params <- as.character(params_range[, 1])
 
   if (!is.data.frame(params_range)) stop("params_range must be a data.frame")
 
   if (ncol(params_range) != 3) stop("params_all must have 3 columns: 'pars', 'min', and 'max'")
 
-  if (!is.list(params_basecase) | is.null(names(params_basecase))) {
+  if (!is.list(params_basecase) || is.null(names(params_basecase))) {
     stop("params_basecase must be a named list")
   }
 
@@ -66,7 +66,7 @@ run_owsa_det <- function(params_range, params_basecase, nsamp = 100, FUN,
   }
 
   if (!all((params_basecase[params] >= params_range[, 2]) &
-         (params_basecase[params] <= params_range[, 3]))) {
+             (params_basecase[params] <= params_range[, 3]))) {
     stop("basecase has to be in between min and max")
   }
 
@@ -96,7 +96,7 @@ run_owsa_det <- function(params_range, params_basecase, nsamp = 100, FUN,
 
   if (!all(outcomes %in% v_outcomes)) {
     stop("at least one outcome is not in FUN outcomes")
-    }
+  }
   if (is.null(outcomes)) outcomes <- v_outcomes
 
   param_table_all <- NULL
@@ -161,9 +161,9 @@ run_owsa_det <- function(params_range, params_basecase, nsamp = 100, FUN,
 
   names(owsa_out) <- paste0("owsa_", outcomes)
 
-if (n_outcomes == 1) {
-  owsa_out <- owsa_out[[1]]
-}
+  if (n_outcomes == 1) {
+    owsa_out <- owsa_out[[1]]
+  }
 
   return(owsa_out)
 }
@@ -177,11 +177,11 @@ if (n_outcomes == 1) {
 #' "min", and "max". The number of samples from this range is
 #' determined by \code{nsamp}. "pars" are the 2 parameters of interest, which must be a subset of
 #' the parameters from \code{params_basecase}.
-#' @param params_basecase a named list of basecase values for input parameters needed by \code{FUN},
+#' @param params_basecase a named list of base case values for input parameters needed by \code{FUN},
 #' the user-defined function.
 #' @param nsamp number of parameter values. If \code{NULL}, 40 parameter values are
 #' used
-#' @param FUN Function that takes the basecase in \code{params_all} and \code{...} to
+#' @param FUN Function that takes the base case in \code{params_all} and \code{...} to
 #' produce the \code{outcome} of interest. The \code{FUN} must return a dataframe
 #' where the first column are the strategy names and the rest of the columns must be outcomes.
 #' @param outcomes String vector with the outcomes of interest from \code{FUN}
@@ -207,12 +207,12 @@ if (n_outcomes == 1) {
 #' @importFrom  utils txtProgressBar
 #' @export
 run_twsa_det <- function(params_range, params_basecase, nsamp = 40, FUN, outcomes = NULL,
-                     strategies = NULL, progress = TRUE, ...) {
+                         strategies = NULL, progress = TRUE, ...) {
   if (!is.data.frame(params_range)) stop("params_range must be a data.frame")
 
   if (ncol(params_range) != 3) stop("params_all must have 3 columns: 'pars', 'min', and 'max'")
 
-  if (!is.list(params_basecase) | is.null(names(params_basecase)))
+  if (!is.list(params_basecase) || is.null(names(params_basecase)))
     stop("params_basecase must be a named list")
 
   poi <- unique(as.character(params_range[, 1]))
@@ -234,8 +234,8 @@ run_twsa_det <- function(params_range, params_basecase, nsamp = 40, FUN, outcome
   }
 
   if (!all((params_basecase[poi] >= params_range[, 2]) &
-           (params_basecase[poi] <= params_range[, 3]))) {
-    stop("basecase has to be in between min and max")
+             (params_basecase[poi] <= params_range[, 3]))) {
+    stop("base case has to be in between min and max")
   }
 
   names(params_range) <- c("pars", "min", "max")
@@ -245,7 +245,7 @@ run_twsa_det <- function(params_range, params_basecase, nsamp = 40, FUN, outcome
   },
   error = function(e) NA)
   if (is.na(sum(is.na(jj)))) {
-    stop("FUN is not well defined by the basecase parameter values and ...")
+    stop("FUN is not well defined by the base case parameter values and ...")
   }
 
   userfun <- do.call(FUN, fun_input_ls)
@@ -264,7 +264,7 @@ run_twsa_det <- function(params_range, params_basecase, nsamp = 40, FUN, outcome
   v_outcomes <- colnames(userfun)[-1]
 
   if (!all(outcomes %in% v_outcomes)) {
-      stop("at least one outcome is not in FUN outcomes")
+    stop("at least one outcome is not in FUN outcomes")
   }
   if (is.null(outcomes)) outcomes <- v_outcomes
 
@@ -274,11 +274,11 @@ run_twsa_det <- function(params_range, params_basecase, nsamp = 40, FUN, outcome
   ### Generate matrix of inputs
   range_df <- params_range[, c("min", "max")]
   param_table <- expand.grid(param1 = seq(range_df[1, "min"],
-                                         range_df[1, "max"],
-                                         length.out = nsamp),
+                                          range_df[1, "max"],
+                                          length.out = nsamp),
                              param2 = seq(range_df[2, "min"],
-                                         range_df[2, "max"],
-                                         length.out = nsamp))
+                                          range_df[2, "max"],
+                                          length.out = nsamp))
   colnames(param_table) <- poi
 
   # Run model and capture outcome
